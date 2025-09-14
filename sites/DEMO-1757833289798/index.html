@@ -1,0 +1,185 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="This is a demo business site created by Thrivoy on Sun Sep 14 2025 12:31:29 GMT+0530 (India Standard Time)"><meta name="keywords" content="technology, Demo City, business"><title>Demo Business Site - Demo tagline for testing</title><link rel="stylesheet" href="./styles.css"><link rel="icon" href="data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 100 100\"><text y=\".9em\" font-size=\"90\">🏢</text></svg>"></head><body><header class="site-header"><div class="container"><nav class="navbar"><div class="nav-brand"><h1 class="site-title">Demo Business Site</h1><p class="site-tagline">Demo tagline for testing</p></div><div class="nav-links"><a href="#about">About</a><a href="#contact">Contact</a></div></nav></div></header><section class="hero-section"><div class="container"><div class="hero-content"><h2 class="hero-title">Welcome to Demo Business Site</h2><p class="hero-description">This is a demo business site created by Thrivoy on Sun Sep 14 2025 12:31:29 GMT+0530 (India Standard Time)</p><p class="hero-location">📍 Located in Demo City</p><div class="hero-actions"><a href="#" id="hero-contact-btn" class="btn btn-primary">Contact Us on WhatsApp</a><a href="#about" class="btn btn-secondary">Learn More</a></div></div></div></section><section id="about" class="about-section"><div class="container"><h2>About Demo Business Site</h2><div class="about-content"><div class="about-text"><p>This is a demo business site created by Thrivoy on Sun Sep 14 2025 12:31:29 GMT+0530 (India Standard Time)</p><p><strong>Industry:</strong> technology</p><p><strong>Location:</strong> Demo City</p><p><strong>Contact Person:</strong> Demo Owner</p></div></div></div></section><section id="contact" class="contact-section"><div class="container"><h2>Get In Touch</h2><div class="contact-content"><div class="contact-info"><h3>Contact Information</h3><p><strong>Contact Person:</strong> Demo Owner</p><p><strong>Phone:</strong> <a href="tel:9876543210">9876543210</a></p><p><strong>Location:</strong> Demo City</p></div><div class="contact-form"><h3>Send us a message</h3><form id="contact-form" action="#" method="post"><div class="form-group"><input type="text" name="name" placeholder="Your Name" required></div><div class="form-group"><input type="email" name="email" placeholder="Your Email" required></div><div class="form-group"><textarea name="message" placeholder="Your Message" rows="4" required></textarea></div><button type="submit" class="btn btn-primary">Send Message</button></form></div></div></div></section><footer class="site-footer"><div class="container"><div class="footer-content"><div class="footer-section"><h4>Demo Business Site</h4><p>Demo tagline for testing</p></div><div class="footer-section"><h4>Contact</h4><p>9876543210</p></div><div class="footer-section"><h4>Location</h4><p>Demo City</p></div></div><div class="footer-bottom"><p>&copy; 2025 Demo Business Site. All rights reserved.</p><p>Powered by <a href="https://thrivoy.com" target="_blank">Thrivoy</a> - Professional websites made simple</p></div></div></footer><script>window.THRIVOY_CONFIG = {clientWA: "919876543210",businessId: "DEMO-1757833289798",siteName: "Demo Business Site",ownerName: "Demo Owner",showWhatsApp: true};</script>
+<script>
+(function() {
+  'use strict';
+  
+  var config = window.THRIVOY_CONFIG || {};
+  
+  // Contact form handling
+  function initContactForm() {
+    var form = document.getElementById('contact-form');
+    if (!form) return;
+    
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      var formData = new FormData(form);
+      var data = {
+        name: formData.get('name'),
+        email: formData.get('email'),
+        message: formData.get('message'),
+        businessId: config.businessId,
+        siteName: config.siteName
+      };
+      
+      // Create WhatsApp message if WhatsApp is available
+      if (config.clientWA && config.showWhatsApp) {
+        var waMessage = "Hi " + config.siteName + "!\n\n" +
+          "Name: " + data.name + "\n" +
+          "Email: " + data.email + "\n" +
+          "Message: " + data.message + "\n\n" +
+          "Sent from your website contact form.";
+        
+        var waUrl = "https://wa.me/" + config.clientWA + "?text=" + encodeURIComponent(waMessage);
+        window.open(waUrl, '_blank');
+        
+        // Show success message
+        showMessage('Message sent via WhatsApp!', 'success');
+        form.reset();
+      } else {
+        showMessage('Contact form submitted! We will get back to you soon.', 'success');
+        form.reset();
+      }
+    });
+  }
+  
+  // Hero contact button
+  function initHeroContactButton() {
+    var heroBtn = document.getElementById('hero-contact-btn');
+    if (!heroBtn || !config.clientWA || !config.showWhatsApp) return;
+    
+    heroBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      var message = "Hi " + config.siteName + "! I'm interested in your services and would like to know more.";
+      var waUrl = "https://wa.me/" + config.clientWA + "?text=" + encodeURIComponent(message);
+      window.open(waUrl, '_blank');
+    });
+  }
+  
+  // Show message function
+  function showMessage(text, type) {
+    var messageDiv = document.createElement('div');
+    messageDiv.style.cssText = 'position:fixed;top:20px;right:20px;background:' + (type === 'success' ? '#28a745' : '#dc3545') + ';color:white;padding:15px 20px;border-radius:5px;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,0.2);';
+    messageDiv.textContent = text;
+    
+    document.body.appendChild(messageDiv);
+    
+    setTimeout(function() {
+      messageDiv.style.opacity = '0';
+      messageDiv.style.transform = 'translateX(100%)';
+      messageDiv.style.transition = 'all 0.3s ease';
+      setTimeout(function() {
+        document.body.removeChild(messageDiv);
+      }, 300);
+    }, 3000);
+  }
+  
+  // Smooth scrolling for navigation links
+  function initSmoothScrolling() {
+    var links = document.querySelectorAll('a[href^="#"]');
+    links.forEach(function(link) {
+      link.addEventListener('click', function(e) {
+        e.preventDefault();
+        var targetId = this.getAttribute('href').substring(1);
+        var target = document.getElementById(targetId);
+        if (target) {
+          target.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
+          });
+        }
+      });
+    });
+  }
+  
+  // Initialize everything when DOM is ready
+  document.addEventListener('DOMContentLoaded', function() {
+    initContactForm();
+    initHeroContactButton();
+    initSmoothScrolling();
+    
+    // Animate elements on scroll (simple version)
+    var animateElements = document.querySelectorAll('.service-card, .contact-form');
+    var observer = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting) {
+          entry.target.style.opacity = '1';
+          entry.target.style.transform = 'translateY(0)';
+        }
+      });
+    });
+    
+    animateElements.forEach(function(el) {
+      el.style.opacity = '0';
+      el.style.transform = 'translateY(30px)';
+      el.style.transition = 'all 0.6s ease';
+      observer.observe(el);
+    });
+  });
+})();
+</script>
+
+<div class="wh-widget">
+  <a id="wh_client_btn" class="wh-btn" href="#" aria-label="Message us on WhatsApp" style="display: none;">
+    <span class="wh-mini">💬</span>
+    <span class="wh-label">Chat with us</span>
+  </a>
+  <a id="wh_support_btn" class="wh-small" href="#" aria-label="Contact Thrivoy support">
+    Thrivoy Support
+  </a>
+</div>
+
+<script>
+(function() {
+  'use strict';
+  
+  var config = window.THRIVOY_CONFIG || {};
+  var support = "917892159170";
+  var client = (config.clientWA || "").replace(/\D/g, "");
+  var siteName = config.siteName || document.title || "this business";
+  var currentPage = location.href;
+  
+  function createWhatsAppUrl(number, message) {
+    if (!number || number.length < 10) return '#';
+    var cleanNumber = number.replace(/[^\d]/g, '');
+    var encodedMessage = message ? encodeURIComponent(message) : '';
+    return "https://wa.me/" + cleanNumber + (encodedMessage ? "?text=" + encodedMessage : "");
+  }
+  
+  function logWhatsAppClick(type, number) {
+    try {
+      // Optional: Send analytics to your backend
+      console.log('WhatsApp click:', type, number);
+    } catch (e) {
+      // Silent fail for logging
+    }
+  }
+  
+  // Setup client WhatsApp button
+  var clientBtn = document.getElementById('wh_client_btn');
+  var supportBtn = document.getElementById('wh_support_btn');
+  
+  if (client && client.length >= 10 && config.showWhatsApp) {
+    var clientMessage = "Hi " + siteName + "! I found your website (" + currentPage + ") and would like to know more about your services.";
+    clientBtn.href = createWhatsAppUrl(client, clientMessage);
+    clientBtn.style.display = 'flex';
+    
+    clientBtn.addEventListener('click', function(e) {
+      logWhatsAppClick('client', client);
+    });
+  }
+  
+  // Setup support button
+  if (support) {
+    var supportMessage = "Hi Thrivoy! I need help with " + siteName + " (" + currentPage + ")";
+    supportBtn.href = createWhatsAppUrl(support, supportMessage);
+    
+    supportBtn.addEventListener('click', function(e) {
+      logWhatsAppClick('support', support);
+    });
+  } else {
+    supportBtn.style.display = 'none';
+  }
+})();
+</script>
+</body></html>
