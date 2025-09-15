@@ -1,0 +1,69 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="We help businesses grow
+
+With 10 years of experience, Smart Test Business specializes in solving unclear business direction and low profits through 10 years exp"><title>Smart Test Business - 10 years experience with proven results</title><link rel="stylesheet" href="./styles.css"></head><body><header class="site-header"><div class="container"><nav class="navbar"><div class="nav-brand"><h1 class="site-title">Smart Test Business</h1><p class="site-tagline">10 years experience with proven results</p></div><div class="nav-links"><a href="#about">About</a><a href="#contact">Contact</a></div></nav></div></header><section class="hero-section"><div class="container"><div class="hero-content"><h2 class="hero-title">Solving unclear business direction and low profits with 10 years experience with proven results serving Your State</h2><p class="hero-description">We help businesses grow
+
+With 10 years of experience, Smart Test Business specializes in solving unclear business direction and low profits through 10 years experience with proven results.</p><p class="hero-location">📍 Your City</p><div class="hero-actions"><a href="#" id="hero-contact-btn" class="btn btn-primary">Get Started Today</a><a href="#about" class="btn btn-secondary">Learn More</a></div></div></div></section><section id="about" class="about-section"><div class="container"><h2>About Smart Test Business</h2><div class="about-content"><div class="about-text"><p>We help businesses grow</p><p>With 10 years of experience, Smart Test Business specializes in solving unclear business direction and low profits through 10 years experience with proven results. We primarily work with small business owners, providing increased revenue, better efficiency, clear strategy. Our team holds MBA, Business Consultant Certification, ensuring professional excellence. Based in Your City, we proudly serve Your State. </p><p>For example, we recently helped a client increase revenue by 50% in 6 months. We are committed to building lasting relationships through trust, quality, and measurable results.</p></div></div></div></section><section id="contact" class="contact-section"><div class="container"><h2>Get In Touch</h2><div class="contact-content"><div class="contact-info"><h3>Contact Information</h3><p><strong>Contact Person:</strong> Test Owner</p><p><strong>Email:</strong> <a href="mailto:test@example.com">test@example.com</a></p><p><strong>Phone:</strong> <a href="tel:9876543210">9876543210</a></p><p><strong>Location:</strong> Your City</p></div></div></div></section><footer class="site-footer"><div class="container"><div class="footer-content"><div class="footer-section"><h4>Smart Test Business</h4><p>10 years experience with proven results</p></div></div><div class="footer-bottom"><p>&copy; 2025 Smart Test Business. All rights reserved.</p><p>Powered by <a href="https://thrivoy.com" target="_blank">Thrivoy</a> - AI-powered websites</p></div></div></footer><script>window.THRIVOY_CONFIG = {clientWA: "9876543210",businessId: "BIZ-1757911238151",siteName: "Smart Test Business",ownerName: "Test Owner",showWhatsApp: true};</script>
+<div class="wh-widget">
+  <a id="wh_client_btn" class="wh-btn" href="#" aria-label="Message us on WhatsApp" style="display: none;">
+    <span class="wh-mini">💬</span>
+    <span class="wh-label">Chat with us</span>
+  </a>
+  <a id="wh_support_btn" class="wh-small" href="#" aria-label="Contact Thrivoy support">
+    Thrivoy Support
+  </a>
+</div>
+
+<script>
+(function() {
+  'use strict';
+  
+  var config = window.THRIVOY_CONFIG || {};
+  var support = "917892159170";
+  var client = (config.clientWA || "").replace(/\D/g, "");
+  var siteName = config.siteName || document.title || "this business";
+  var currentPage = location.href;
+  
+  function createWhatsAppUrl(number, message) {
+    if (!number || number.length < 10) return '#';
+    var cleanNumber = number.replace(/[^\d]/g, '');
+    var encodedMessage = message ? encodeURIComponent(message) : '';
+    return "https://wa.me/" + cleanNumber + (encodedMessage ? "?text=" + encodedMessage : "");
+  }
+  
+  function logWhatsAppClick(type, number) {
+    try {
+      // Optional: Send analytics to your backend
+      console.log('WhatsApp click:', type, number);
+    } catch (e) {
+      // Silent fail for logging
+    }
+  }
+  
+  // Setup client WhatsApp button
+  var clientBtn = document.getElementById('wh_client_btn');
+  var supportBtn = document.getElementById('wh_support_btn');
+  
+  if (client && client.length >= 10 && config.showWhatsApp) {
+    var clientMessage = "Hi " + siteName + "! I found your website (" + currentPage + ") and would like to know more about your services.";
+    clientBtn.href = createWhatsAppUrl(client, clientMessage);
+    clientBtn.style.display = 'flex';
+    
+    clientBtn.addEventListener('click', function(e) {
+      logWhatsAppClick('client', client);
+    });
+  }
+  
+  // Setup support button
+  if (support) {
+    var supportMessage = "Hi Thrivoy! I need help with " + siteName + " (" + currentPage + ")";
+    supportBtn.href = createWhatsAppUrl(support, supportMessage);
+    
+    supportBtn.addEventListener('click', function(e) {
+      logWhatsAppClick('support', support);
+    });
+  } else {
+    supportBtn.style.display = 'none';
+  }
+})();
+</script>
+</body></html>
