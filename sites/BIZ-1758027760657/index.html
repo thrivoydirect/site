@@ -1,0 +1,65 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="Smart Test Business empowers small business owners in Your City to achieve sustainable growth. With a decade of experience transforming businesses, they provide"><title>Smart Test Business - Smart Growth. Proven Results.</title><link rel="stylesheet" href="./styles.css"></head><body><header class="site-header"><div class="container"><nav class="navbar"><div class="nav-brand"><h1 class="site-title">Smart Test Business</h1><p class="site-tagline">Smart Growth. Proven Results.</p></div><div class="nav-links"><a href="#about">About</a><a href="#contact">Contact</a></div></nav></div></header><section class="hero-section"><div class="container"><div class="hero-content"><h2 class="hero-title">Unlock your business potential: Clear strategy, increased revenue, lasting success.</h2><p class="hero-description">Smart Test Business empowers small business owners in Your City to achieve sustainable growth.</p><p class="hero-location">📍 Your City</p><div class="hero-actions"><a href="#" id="hero-contact-btn" class="btn btn-primary">Get Started Today</a><a href="#about" class="btn btn-secondary">Learn More</a></div></div></div></section><section id="about" class="about-section"><div class="container"><h2>About Smart Test Business</h2><div class="about-content"><div class="about-text"><p>Smart Test Business empowers small business owners in Your City to achieve sustainable growth. With a decade of experience transforming businesses, they provide tailored consulting services that address the root causes of stagnation and low profitability. Smart Test Business focuses on delivering tangible results: increased revenue streams, streamlined operational efficiency, and a crystal-clear strategic direction. Their proven methodologies, combined with a deep understanding of the small business landscape, ensure clients gain a competitive edge. Smart Test Business helps businesses create strategic roadmaps that drive lasting success, not just temporary fixes. They pride themselves on building strong, collaborative relationships with clients, acting as a trusted advisor every step of the way.</p></div></div></div></section><section id="contact" class="contact-section"><div class="container"><h2>Get In Touch</h2><div class="contact-content"><div class="contact-info"><h3>Contact Information</h3><p><strong>Contact Person:</strong> Test Owner</p><p><strong>Email:</strong> <a href="mailto:test@example.com">test@example.com</a></p><p><strong>Phone:</strong> <a href="tel:919876543210">919876543210</a></p><p><strong>Location:</strong> Your City</p></div></div></div></section><footer class="site-footer"><div class="container"><div class="footer-content"><div class="footer-section"><h4>Smart Test Business</h4><p>Smart Growth. Proven Results.</p></div></div><div class="footer-bottom"><p>&copy; 2025 Smart Test Business. All rights reserved.</p><p>Powered by <a href="https://thrivoy.com" target="_blank">Thrivoy</a> - AI-powered websites</p></div></div></footer><script>window.THRIVOY_CONFIG = {clientWA: "919876543210",businessId: "BIZ-1758027760657",siteName: "Smart Test Business",ownerName: "Test Owner",showWhatsApp: true};</script>
+<div class="wh-widget">
+  <a id="wh_client_btn" class="wh-btn" href="#" aria-label="Message us on WhatsApp" style="display: none;">
+    <span class="wh-mini">💬</span>
+    <span class="wh-label">Chat with us</span>
+  </a>
+  <a id="wh_support_btn" class="wh-small" href="#" aria-label="Contact Thrivoy support">
+    Thrivoy Support
+  </a>
+</div>
+
+<script>
+(function() {
+  'use strict';
+  
+  var config = window.THRIVOY_CONFIG || {};
+  var support = "917892159170";
+  var client = (config.clientWA || "").replace(/\D/g, "");
+  var siteName = config.siteName || document.title || "this business";
+  var currentPage = location.href;
+  
+  function createWhatsAppUrl(number, message) {
+    if (!number || number.length < 10) return '#';
+    var cleanNumber = number.replace(/[^\d]/g, '');
+    var encodedMessage = message ? encodeURIComponent(message) : '';
+    return "https://wa.me/" + cleanNumber + (encodedMessage ? "?text=" + encodedMessage : "");
+  }
+  
+  function logWhatsAppClick(type, number) {
+    try {
+      // Optional: Send analytics to your backend
+      console.log('WhatsApp click:', type, number);
+    } catch (e) {
+      // Silent fail for logging
+    }
+  }
+  
+  // Setup client WhatsApp button
+  var clientBtn = document.getElementById('wh_client_btn');
+  var supportBtn = document.getElementById('wh_support_btn');
+  
+  if (client && client.length >= 10 && config.showWhatsApp) {
+    var clientMessage = "Hi " + siteName + "! I found your website (" + currentPage + ") and would like to know more about your services.";
+    clientBtn.href = createWhatsAppUrl(client, clientMessage);
+    clientBtn.style.display = 'flex';
+    
+    clientBtn.addEventListener('click', function(e) {
+      logWhatsAppClick('client', client);
+    });
+  }
+  
+  // Setup support button
+  if (support) {
+    var supportMessage = "Hi Thrivoy! I need help with " + siteName + " (" + currentPage + ")";
+    supportBtn.href = createWhatsAppUrl(support, supportMessage);
+    
+    supportBtn.addEventListener('click', function(e) {
+      logWhatsAppClick('support', support);
+    });
+  } else {
+    supportBtn.style.display = 'none';
+  }
+})();
+</script>
+</body></html>
