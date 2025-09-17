@@ -2,213 +2,210 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <title>Thrivoy Business Dashboard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Thrivoy Dashboard</title>
   <style>
-    /* (same styles as your file – unchanged) */
-    /* ... keep your full CSS here ... */
+    body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #f9f9f9; }
+    header { background: #073378; color: white; padding: 15px; text-align: center; }
+    main { padding: 20px; }
+    .card { background: white; padding: 15px; margin-bottom: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    .card h2 { margin-top: 0; }
+    .stats { display: flex; gap: 20px; }
+    .stat { flex: 1; background: #f0f4ff; padding: 10px; border-radius: 6px; text-align: center; }
+    .btn { display: inline-block; background: #073378; color: white; padding: 10px 15px; margin: 5px 0; border-radius: 6px; text-decoration: none; cursor: pointer; }
+    .btn:hover { background: #06285d; }
+    iframe { width: 100%; min-height: 300px; border: 1px solid #ccc; border-radius: 6px; }
+    #loading { text-align: center; padding: 40px; }
+    #error { background: #ffdddd; padding: 10px; margin: 10px 0; border: 1px solid #ff9999; display: none; }
+    ul { padding-left: 20px; }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="header fade-in">
-      <h1>🚀 Thrivoy Dashboard</h1>
-      <p class="subtitle">Manage your business online presence</p>
-    </div>
+  <header>
+    <h1>Thrivoy Dashboard</h1>
+  </header>
+  <main>
+    <div id="loading">Loading dashboard…</div>
+    <div id="error"></div>
 
-    <div id="loading" class="loading">
-      <div>Loading your dashboard...</div>
-      <div style="margin-top: 10px;">⏳ Please wait a moment</div>
-    </div>
+    <div id="dashboard-content" style="display:none;">
+      <!-- Business Info -->
+      <div class="card">
+        <h2 id="business-name">Business Name</h2>
+        <p><strong>Owner:</strong> <span id="owner-name"></span></p>
+        <p><strong>Email:</strong> <span id="email"></span></p>
+        <p><strong>Phone:</strong> <span id="phone"></span></p>
+        <p><strong>Location:</strong> <span id="location"></span></p>
+        <p><strong>Category:</strong> <span id="category"></span></p>
+        <p><strong>Created:</strong> <span id="created-date"></span></p>
+        <p><strong>Last Updated:</strong> <span id="updated-date"></span></p>
+      </div>
 
-    <div id="error" class="error" style="display: none;"></div>
+      <!-- Website -->
+      <div class="card">
+        <h2>Website</h2>
+        <p><a id="website-url" href="#" target="_blank">View Website</a></p>
+        <iframe id="website-iframe" src="about:blank"></iframe>
+      </div>
 
-    <div id="dashboard-content" style="display: none;">
-      <!-- (all your cards remain exactly the same) -->
-      <!-- Business Information, Subscription Status, Website, Content Library, Analytics, Support -->
+      <!-- Stats -->
+      <div class="card stats">
+        <div class="stat">
+          <h3>Total Content</h3>
+          <p id="total-content">0</p>
+        </div>
+        <div class="stat">
+          <h3>Published</h3>
+          <p id="published-content">0</p>
+        </div>
+      </div>
+
+      <!-- Content Library -->
+      <div class="card">
+        <h2>Content Library</h2>
+        <ul id="content-library"><li>No content yet</li></ul>
+      </div>
+
+      <!-- Actions -->
+      <div class="card">
+        <h2>Actions</h2>
+        <button id="create-payment-btn" class="btn">Create Payment Link</button>
+        <button id="share-website-btn" class="btn">Share Website</button>
+        <button id="whatsapp-support-btn" class="btn">Contact Support</button>
+      </div>
+
+      <!-- Payment QR -->
+      <div class="card" id="qr-section" style="display:none;">
+        <h2>Payment QR</h2>
+        <img id="qr-image" src="" alt="QR Code" style="max-width:200px;display:block;margin:10px auto;">
+        <p><a id="upi-link" href="#" target="_blank">Pay Now</a></p>
+        <p><strong>Invoice ID:</strong> <span id="invoice-id"></span></p>
+      </div>
     </div>
-  </div>
+  </main>
 
   <script>
-    const CONFIG = {
-      API_BASE_URL: 'https://script.google.com/macros/s/AKfycbwu9uMUiZX1sAJQ7ygUumw3tXwaegk8v9iBkCrSpFdIF8Ua5eICTr6Otq0MJhc6I12smg/exec',
-      SUPPORT_WHATSAPP: '917892159170'
-    };
-
-    function getBusinessId() {
+    // ===== Utility =====
+    function getQueryParam(name) {
       const urlParams = new URLSearchParams(window.location.search);
-      return urlParams.get('businessId') || urlParams.get('id') || 'BIZ-1757780208246';
+      return urlParams.get(name) || null;
+    }
+    function formatDate(dateStr) {
+      if (!dateStr) return "N/A";
+      try { return new Date(dateStr).toLocaleDateString(); } catch { return dateStr; }
+    }
+    function showError(msg) {
+      const el = document.getElementById("error");
+      el.textContent = msg;
+      el.style.display = "block";
     }
 
-    function showError(message) {
-      document.getElementById('loading').style.display = 'none';
-      document.getElementById('dashboard-content').style.display = 'none';
-      document.getElementById('error').style.display = 'block';
-      document.getElementById('error').innerHTML = `
-        <h3>❌ Error Loading Dashboard</h3>
-        <p>${message}</p>
-        <button onclick="location.reload()" class="btn btn-primary">🔄 Retry</button>
-      `;
+    // ===== API Loader =====
+    function loadDashboard() {
+      const businessId = getQueryParam("businessId") || "BIZ-DEMO";
+      const scriptUrl = "https://script.google.com/macros/s/AKfycbwu9uMUiZX1sAJQ7ygUumw3tXwaegk8v9iBkCrSpFdIF8Ua5eICTr6Otq0MJhc6I12smg/exec"; // 🔄 replace with your Apps Script web app URL
+
+      const callbackName = "dashboardCallback_" + Date.now();
+      window[callbackName] = function(data) {
+        if (!data || data.success === false) {
+          showError(data.error || "Failed to load dashboard data");
+          return;
+        }
+        populateDashboard(data);
+      };
+
+      const script = document.createElement("script");
+      script.src = `${scriptUrl}?action=getDashboard&businessId=${businessId}&callback=${callbackName}`;
+      document.body.appendChild(script);
     }
 
-    function formatDate(dateString) {
-      if (!dateString) return '-';
-      const date = new Date(dateString);
-      return date.toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric' });
-    }
-
-    async function loadDashboard() {
-      const businessId = getBusinessId();
-      if (!businessId) {
-        showError('No business ID provided. Please use the correct dashboard link.');
-        return;
-      }
-
-      try {
-        console.log('Loading dashboard for business:', businessId);
-        const callbackName = 'dashboardCallback_' + Date.now();
-        const script = document.createElement('script');
-
-        // ⏳ timeout safeguard
-        const timeout = setTimeout(() => {
-          showError("Request timed out. Please refresh and try again.");
-        }, 10000);
-
-        window[callbackName] = function(data) {
-          clearTimeout(timeout);
-          document.body.removeChild(script);
-          delete window[callbackName];
-
-          if (data && data.success && data.business) {
-            populateDashboard(data);
-          } else {
-            showError(data && data.error ? data.error : 'Invalid response from server');
-          }
-        };
-
-        script.src = `${CONFIG.API_BASE_URL}?action=getDashboard&businessId=${businessId}&callback=${callbackName}`;
-        document.body.appendChild(script);
-      } catch (error) {
-        console.error('Dashboard loading error:', error);
-        showError('Network error. Please check your connection and try again.');
-      }
-    }
-
+    // ===== Populate Dashboard =====
     function populateDashboard(data) {
-      console.log('Dashboard data received:', data);
-      const { business, content, websiteUrl, trialDaysRemaining, subscriptionActive } = data;
+      console.log("Dashboard data received:", data);
+      const { business, content, websiteUrl } = data;
 
-      document.getElementById('loading').style.display = 'none';
-      document.getElementById('dashboard-content').style.display = 'block';
+      document.getElementById("loading").style.display = "none";
+      document.getElementById("dashboard-content").style.display = "block";
 
-      // Business info
-      document.getElementById('business-name').textContent = business.businessName || 'N/A';
-      document.getElementById('owner-name').textContent = business.ownerName || 'N/A';
-      document.getElementById('email').textContent = business.email || 'N/A';
-      document.getElementById('phone').textContent = business.phone || 'N/A';
-      document.getElementById('location').textContent = business.location || 'N/A';
-      document.getElementById('category').textContent = business.category || 'N/A';
+      // Fill business info
+      const setText = (id, val) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = val || "N/A";
+      };
+      setText("business-name", business.businessName);
+      setText("owner-name", business.ownerName);
+      setText("email", business.email);
+      setText("phone", business.phone);
+      setText("location", business.location);
+      setText("category", business.category);
+      setText("created-date", formatDate(business.createdAt));
+      setText("updated-date", formatDate(business.updatedAt));
 
-      // Subscription status (same logic as before)
-      // ...
-
-      // Website section with URL validation
+      // Website
+      const websiteLink = document.getElementById("website-url");
+      const websiteFrame = document.getElementById("website-iframe");
       if (websiteUrl && websiteUrl.startsWith("http")) {
-        document.getElementById('website-url').href = websiteUrl;
-        document.getElementById('website-iframe').src = websiteUrl;
+        websiteLink.href = websiteUrl;
+        websiteFrame.src = websiteUrl;
       } else {
-        document.getElementById('website-url').removeAttribute('href');
-        document.getElementById('website-iframe').src = "about:blank";
+        websiteLink.removeAttribute("href");
+        websiteFrame.src = "about:blank";
       }
 
-      // Content + stats
-      populateContentLibrary(content);
-      document.getElementById('total-content').textContent = content.length;
-      document.getElementById('published-content').textContent = content.filter(c => c.status === 'published').length;
-      document.getElementById('created-date').textContent = formatDate(business.createdAt);
-      document.getElementById('updated-date').textContent = formatDate(business.updatedAt);
+      // Stats
+      const posts = Array.isArray(content) ? content : [];
+      setText("total-content", posts.length);
+      setText("published-content", posts.filter(c => c.status === "published").length);
 
+      // Content library
+      populateContentLibrary(posts);
+
+      // Actions
       setupEventListeners(business.businessId, websiteUrl);
     }
 
     function populateContentLibrary(content) {
-      const container = document.getElementById('content-library');
+      const list = document.getElementById("content-library");
+      list.innerHTML = "";
       if (!content || content.length === 0) {
-        container.innerHTML = `
-          <div style="text-align: center; padding: 40px; color: #666;">
-            <h4>📝 No content yet</h4>
-            <p>Start creating content to grow your online presence!</p>
-          </div>
-        `;
+        list.innerHTML = "<li>No content available</li>";
         return;
       }
-      container.innerHTML = content.map(item => `
-        <div class="content-item">
-          <h4>${item.title || 'Untitled'} <span class="platform-badge">${item.platform}</span></h4>
-          <p>${(item.caption || '').substring(0, 100)}${item.caption && item.caption.length > 100 ? '...' : ''}</p>
-          <p style="font-size: 0.8rem; color: #888; margin-top: 5px;">
-            Created: ${formatDate(item.createdAt)} | Status: ${item.status || 'draft'}
-          </p>
-        </div>
-      `).join('');
+      content.forEach(post => {
+        const li = document.createElement("li");
+        li.textContent = `${post.platform.toUpperCase()}: ${post.title}`;
+        list.appendChild(li);
+      });
     }
 
     function setupEventListeners(businessId, websiteUrl) {
-      document.getElementById('create-payment-btn').addEventListener('click', () => createPaymentInvoice(businessId));
-      document.getElementById('share-website-btn').addEventListener('click', () => {
-        if (navigator.share) {
-          navigator.share({ title: 'Check out my website!', url: websiteUrl });
-        } else {
-          navigator.clipboard.writeText(websiteUrl).then(() => alert('Website URL copied to clipboard!'));
-        }
-      });
-      const supportBtn = document.getElementById('whatsapp-support-btn');
-      const message = `Hi! I need help with my Thrivoy dashboard. Business ID: ${businessId}`;
-      supportBtn.href = `https://wa.me/${CONFIG.SUPPORT_WHATSAPP}?text=${encodeURIComponent(message)}`;
+      const payBtn = document.getElementById("create-payment-btn");
+      if (payBtn) {
+        payBtn.onclick = () => {
+          alert("🔗 Payment link would be generated for " + businessId);
+          // Later: call Apps Script to create invoice + QR
+        };
+      }
+      const shareBtn = document.getElementById("share-website-btn");
+      if (shareBtn) {
+        shareBtn.onclick = () => {
+          if (navigator.share) {
+            navigator.share({ title: "My Website", url: websiteUrl });
+          } else {
+            alert("Copy this link to share: " + websiteUrl);
+          }
+        };
+      }
+      const supportBtn = document.getElementById("whatsapp-support-btn");
+      if (supportBtn) {
+        supportBtn.onclick = () => {
+          window.open("https://wa.me/917892159170", "_blank"); // 🔄 replace
+        };
+      }
     }
 
-    function createPaymentInvoice(businessId) {
-      console.log('Creating payment invoice for:', businessId);
-      const button = document.getElementById('create-payment-btn');
-      const originalText = button.textContent;
-      button.textContent = 'Creating Invoice...';
-      button.disabled = true;
-
-      const callbackName = 'paymentCallback_' + Date.now();
-      const script = document.createElement('script');
-
-      window[callbackName] = function(data) {
-        document.body.removeChild(script);
-        delete window[callbackName];
-        button.textContent = originalText;
-        button.disabled = false;
-
-        if (data.success && data.invoice) {
-          const invoice = data.invoice;
-          document.getElementById('qr-section').style.display = 'block';
-          document.getElementById('qr-image').src = invoice.upiQrImage;
-          document.getElementById('upi-link').href = invoice.upiDeepLink;
-          document.getElementById('invoice-id').textContent = invoice.invoiceId;
-          button.style.display = 'none';
-          alert('Payment invoice created! Use the QR code or UPI link to complete payment.');
-        } else {
-          alert('Failed to create payment invoice: ' + (data.error || 'Unknown error'));
-        }
-      };
-
-      script.src = `${CONFIG.API_BASE_URL}?action=createPayment&businessId=${businessId}&amount=499&callback=${callbackName}`;
-      document.body.appendChild(script);
-    }
-
-    document.addEventListener('DOMContentLoaded', () => {
-      console.log('Dashboard initializing...');
-      loadDashboard();
-    });
-
-    setInterval(() => {
-      console.log('Auto-refreshing dashboard data...');
-      loadDashboard();
-    }, 5 * 60 * 1000);
+    // ===== Init =====
+    document.addEventListener("DOMContentLoaded", loadDashboard);
   </script>
 </body>
 </html>
