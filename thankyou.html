@@ -2,102 +2,175 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Thank You | Thrivoy</title>
+  <title>Thank You – Thrivoy</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #f5f9ff; text-align: center; }
-    header { background: #073378; color: white; padding: 20px; }
-    main { padding: 30px; }
-    h1 { color: #073378; }
-    p { font-size: 16px; color: #333; }
-    .card { background: white; margin: 20px auto; padding: 20px; max-width: 600px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-    .btn { display: inline-block; background: #073378; color: white; padding: 12px 20px; margin: 10px 5px; border-radius: 6px; text-decoration: none; cursor: pointer; }
-    .btn:hover { background: #06285d; }
-    #qr { margin: 20px auto; max-width: 200px; }
-    #error { background: #ffdddd; padding: 10px; border: 1px solid #ff9999; display: none; margin-bottom: 20px; }
+    body {
+      font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: #f9fafb;
+      margin: 0;
+      padding: 0;
+      color: #333;
+    }
+    header {
+      background: #073378;
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 1.8rem;
+    }
+    main {
+      max-width: 800px;
+      margin: 30px auto;
+      background: #fff;
+      padding: 25px 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    }
+    h2 {
+      color: #073378;
+      margin-top: 1.5em;
+    }
+    #thankyouStatus {
+      font-size: 1.1rem;
+      margin-bottom: 20px;
+    }
+    #businessInfo, #invoiceInfo {
+      margin-bottom: 25px;
+    }
+    a.button {
+      display: inline-block;
+      padding: 12px 18px;
+      margin-top: 10px;
+      background: #073378;
+      color: #fff;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+      transition: background 0.2s;
+    }
+    a.button:hover {
+      background: #05285c;
+    }
+    .invoice-box img {
+      max-width: 200px;
+      margin-top: 10px;
+    }
+    footer {
+      text-align: center;
+      padding: 20px;
+      margin-top: 30px;
+      font-size: 0.85rem;
+      color: #777;
+    }
   </style>
 </head>
 <body>
   <header>
-    <h1>Thank You for Joining Thrivoy</h1>
+    <h1>🎉 Thank You for Joining Thrivoy!</h1>
   </header>
+
   <main>
-    <div id="error"></div>
-    <div class="card">
-      <h2 id="biz-name">Your business is onboarded!</h2>
-      <p>Business ID: <span id="biz-id"></span></p>
-      <p>Your free trial ends on <strong id="trial-end"></strong></p>
-    </div>
+    <div id="thankyouStatus">⏳ Loading your details...</div>
 
-    <div class="card">
-      <h2>Your Website</h2>
-      <p><a id="website-url" href="#" target="_blank">Visit Your Website</a></p>
-    </div>
+    <section id="businessInfo"></section>
+    <section id="invoiceInfo" class="invoice-box"></section>
 
-    <div class="card" id="invoice-card" style="display:none;">
-      <h2>Activate Your Subscription</h2>
-      <img id="qr" src="" alt="Payment QR">
-      <p><a id="upi-link" class="btn" href="#" target="_blank">Pay Now</a></p>
-      <p>Invoice ID: <span id="invoice-id"></span></p>
-    </div>
+    <section id="nextSteps">
+      <h2>🚀 Next Steps</h2>
+      <ul>
+        <li>Your website will be live within 1–3 minutes.</li>
+        <li>Check your email for your welcome pack and login details.</li>
+        <li>Complete your payment if you selected a paid plan.</li>
+        <li>Start customizing your content and engaging customers.</li>
+      </ul>
+    </section>
 
-    <div class="card">
-      <h2>Next Steps</h2>
-      <p>✅ Explore your dashboard for content ideas</p>
-      <p>✅ Share your new website link</p>
-      <p>✅ Complete payment to unlock premium features</p>
-      <a id="dashboard-link" class="btn" href="#">Go to Dashboard</a>
-      <a id="whatsapp-support" class="btn" href="#">Contact Support</a>
-    </div>
+    <section id="support">
+      <h2>💬 Need Help?</h2>
+      <p>We’re here for you. Reach out to our support team anytime:</p>
+      <p>
+        <a href="https://wa.me/YOUR_SUPPORT_NUMBER" target="_blank" class="button">Chat on WhatsApp</a>
+      </p>
+    </section>
   </main>
 
+  <footer>
+    &copy; <span id="year"></span> Thrivoy. All rights reserved.
+  </footer>
+
   <script>
-    function getQueryParam(name) {
-      const urlParams = new URLSearchParams(window.location.search);
-      return urlParams.get(name) || null;
+  // === CONFIG ===
+  const CONFIG = {
+    APPS_SCRIPT_URL: "https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec", // 👉 replace
+    SUPPORT_NUMBER: "917892159170" // 👉 replace with THRIVOY_SUPPORT_NUMBER
+  };
+
+  // === Utility ===
+  function getQueryParam(name) {
+    const params = new URLSearchParams(window.location.search);
+    return params.get(name);
+  }
+
+  async function loadThankYou() {
+    const bizId = getQueryParam("businessId") || getQueryParam("id") || getQueryParam("biz");
+    const statusEl = document.getElementById("thankyouStatus");
+    const bizEl = document.getElementById("businessInfo");
+    const invoiceEl = document.getElementById("invoiceInfo");
+
+    if (!bizId) {
+      statusEl.innerHTML = "❌ No Business ID provided.";
+      return;
     }
-    function showError(msg) {
-      const el = document.getElementById("error");
-      el.textContent = msg;
-      el.style.display = "block";
-    }
-    function loadThankYou() {
-      const bizId = getQueryParam("businessId");
-      if (!bizId) {
-        showError("Business ID missing. Please return to onboarding.");
+
+    try {
+      const url = `${CONFIG.APPS_SCRIPT_URL}?action=getThankYou&businessId=${encodeURIComponent(bizId)}`;
+      const resp = await fetch(url);
+      const data = await resp.json();
+
+      if (!data.success) {
+        statusEl.innerHTML = "❌ Error: " + (data.error || "Unknown problem");
         return;
       }
-      const scriptUrl = "https://script.google.com/macros/s/AKfycbwu9uMUiZX1sAJQ7ygUumw3tXwaegk8v9iBkCrSpFdIF8Ua5eICTr6Otq0MJhc6I12smg/exec"; // 🔄 replace
-      const callbackName = "thankyouCallback_" + Date.now();
-      window[callbackName] = function(data) {
-        if (!data || data.success === false) {
-          showError(data.error || "Failed to load thank you data");
-          return;
-        }
-        populateThankYou(data);
-      };
-      const script = document.createElement("script");
-      script.src = `${scriptUrl}?action=getThankYou&businessId=${bizId}&callback=${callbackName}`;
-      document.body.appendChild(script);
-    }
-    function populateThankYou(data) {
-      const biz = data.business || {};
-      const invoice = data.invoice || null;
-      document.getElementById("biz-name").textContent = biz.businessName || "Your Business";
-      document.getElementById("biz-id").textContent = biz.businessId || "N/A";
-      document.getElementById("trial-end").textContent = biz.trialEndsAt ? new Date(biz.trialEndsAt).toLocaleDateString() : "N/A";
-      const websiteUrl = data.websiteUrl || "#";
-      document.getElementById("website-url").href = websiteUrl;
-      document.getElementById("dashboard-link").href = `dashboard.html?businessId=${biz.businessId}`;
-      document.getElementById("whatsapp-support").href = "https://wa.me/917892159170"; // 🔄 replace
-      if (invoice && invoice.upiDeepLink) {
-        document.getElementById("invoice-card").style.display = "block";
-        document.getElementById("qr").src = invoice.qrCodeUrl || "";
-        document.getElementById("upi-link").href = invoice.upiDeepLink;
-        document.getElementById("invoice-id").textContent = invoice.invoiceId;
+
+      // Business section
+      statusEl.innerHTML = "🎉 Your business website is ready!";
+      bizEl.innerHTML = `
+        <h2>🌐 Business Details</h2>
+        <p><strong>Business:</strong> ${data.business.businessName || "(not set)"}</p>
+        <p><strong>Owner:</strong> ${data.business.ownerName || "(not set)"}</p>
+        <p><strong>Email:</strong> ${data.business.email || "(not set)"}</p>
+        ${data.websiteUrl ? `<p><a href="${data.websiteUrl}" target="_blank" class="button">View Your Website</a></p>` : ""}
+      `;
+
+      // Invoice section
+      if (data.invoice && data.invoice.invoiceId) {
+        invoiceEl.innerHTML = `
+          <h2>💳 Payment Details</h2>
+          <p><strong>Invoice ID:</strong> ${data.invoice.invoiceId}</p>
+          ${data.invoice.upiDeepLink ? `<p><a href="${data.invoice.upiDeepLink}" target="_blank" class="button">Pay via UPI</a></p>` : ""}
+          ${data.invoice.qrCodeUrl ? `<p><img src="${data.invoice.qrCodeUrl}" alt="UPI QR Code"></p>` : ""}
+        `;
+      } else {
+        invoiceEl.innerHTML = `
+          <h2>💳 Payment Details</h2>
+          <p>ℹ️ No invoice found yet. If you chose a paid plan, you’ll get one shortly by email.</p>
+        `;
       }
+
+      // Update WhatsApp support button
+      document.querySelector("#support a").href = "https://wa.me/" + CONFIG.SUPPORT_NUMBER;
+
+    } catch (err) {
+      statusEl.innerHTML = "❌ Failed to load data: " + err.message;
     }
-    document.addEventListener("DOMContentLoaded", loadThankYou);
+  }
+
+  document.getElementById("year").textContent = new Date().getFullYear();
+  document.addEventListener("DOMContentLoaded", loadThankYou);
   </script>
 </body>
 </html>
