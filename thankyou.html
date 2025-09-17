@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Thank You | Thrivoy</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #f5f9ff; text-align: center; }
+    header { background: #073378; color: white; padding: 20px; }
+    main { padding: 30px; }
+    h1 { color: #073378; }
+    p { font-size: 16px; color: #333; }
+    .card { background: white; margin: 20px auto; padding: 20px; max-width: 600px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+    .btn { display: inline-block; background: #073378; color: white; padding: 12px 20px; margin: 10px 5px; border-radius: 6px; text-decoration: none; cursor: pointer; }
+    .btn:hover { background: #06285d; }
+    #qr { margin: 20px auto; max-width: 200px; }
+    #error { background: #ffdddd; padding: 10px; border: 1px solid #ff9999; display: none; margin-bottom: 20px; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Thank You for Joining Thrivoy</h1>
+  </header>
+  <main>
+    <div id="error"></div>
+    <div class="card">
+      <h2 id="biz-name">Your business is onboarded!</h2>
+      <p>Business ID: <span id="biz-id"></span></p>
+      <p>Your free trial ends on <strong id="trial-end"></strong></p>
+    </div>
+
+    <div class="card">
+      <h2>Your Website</h2>
+      <p><a id="website-url" href="#" target="_blank">Visit Your Website</a></p>
+    </div>
+
+    <div class="card" id="invoice-card" style="display:none;">
+      <h2>Activate Your Subscription</h2>
+      <img id="qr" src="" alt="Payment QR">
+      <p><a id="upi-link" class="btn" href="#" target="_blank">Pay Now</a></p>
+      <p>Invoice ID: <span id="invoice-id"></span></p>
+    </div>
+
+    <div class="card">
+      <h2>Next Steps</h2>
+      <p>✅ Explore your dashboard for content ideas</p>
+      <p>✅ Share your new website link</p>
+      <p>✅ Complete payment to unlock premium features</p>
+      <a id="dashboard-link" class="btn" href="#">Go to Dashboard</a>
+      <a id="whatsapp-support" class="btn" href="#">Contact Support</a>
+    </div>
+  </main>
+
+  <script>
+    function getQueryParam(name) {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get(name) || null;
+    }
+    function showError(msg) {
+      const el = document.getElementById("error");
+      el.textContent = msg;
+      el.style.display = "block";
+    }
+    function loadThankYou() {
+      const bizId = getQueryParam("businessId");
+      if (!bizId) {
+        showError("Business ID missing. Please return to onboarding.");
+        return;
+      }
+      const scriptUrl = "https://script.google.com/macros/s/AKfycbwu9uMUiZX1sAJQ7ygUumw3tXwaegk8v9iBkCrSpFdIF8Ua5eICTr6Otq0MJhc6I12smg/exec"; // 🔄 replace
+      const callbackName = "thankyouCallback_" + Date.now();
+      window[callbackName] = function(data) {
+        if (!data || data.success === false) {
+          showError(data.error || "Failed to load thank you data");
+          return;
+        }
+        populateThankYou(data);
+      };
+      const script = document.createElement("script");
+      script.src = `${scriptUrl}?action=getThankYou&businessId=${bizId}&callback=${callbackName}`;
+      document.body.appendChild(script);
+    }
+    function populateThankYou(data) {
+      const biz = data.business || {};
+      const invoice = data.invoice || null;
+      document.getElementById("biz-name").textContent = biz.businessName || "Your Business";
+      document.getElementById("biz-id").textContent = biz.businessId || "N/A";
+      document.getElementById("trial-end").textContent = biz.trialEndsAt ? new Date(biz.trialEndsAt).toLocaleDateString() : "N/A";
+      const websiteUrl = data.websiteUrl || "#";
+      document.getElementById("website-url").href = websiteUrl;
+      document.getElementById("dashboard-link").href = `dashboard.html?businessId=${biz.businessId}`;
+      document.getElementById("whatsapp-support").href = "https://wa.me/917892159170"; // 🔄 replace
+      if (invoice && invoice.upiDeepLink) {
+        document.getElementById("invoice-card").style.display = "block";
+        document.getElementById("qr").src = invoice.qrCodeUrl || "";
+        document.getElementById("upi-link").href = invoice.upiDeepLink;
+        document.getElementById("invoice-id").textContent = invoice.invoiceId;
+      }
+    }
+    document.addEventListener("DOMContentLoaded", loadThankYou);
+  </script>
+</body>
+</html>
