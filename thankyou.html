@@ -1,76 +1,56 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Welcome to Thrivoy!</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Thank You — Thrivoy</title>
   <style>
-    body { font-family: Arial, sans-serif; background:#f9f9f9; margin:0; padding:20px; }
-    .container { max-width:800px; margin:auto; background:white; padding:30px; border-radius:10px; }
-    h1 { color:#28a745; }
-    .error { background:#f8d7da; color:#721c24; padding:15px; border-radius:8px; margin-top:20px; display:none; }
-    .loading { margin:20px 0; }
-    .info { background:#e9f7ef; padding:20px; border-radius:8px; margin-top:20px; }
+    body{font-family:Arial,Helvetica,sans-serif;background:#f7f8fb}
+    .box{max-width:700px;margin:40px auto;padding:24px;background:#fff;border-radius:8px}
+    h1{color:#28a745}
+    .error{color:#a00}
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>🎉 Welcome to Thrivoy!</h1>
-    <p id="business-name-display">Loading your business details...</p>
-    <div class="loading" id="loading">⏳ Loading...</div>
-    <div class="error" id="error"></div>
-    <div id="thankyou-content" style="display:none;" class="info">
-      <h3>Your Business Info</h3>
-      <p><b>Name:</b> <span id="bizName"></span></p>
-      <p><b>Owner:</b> <span id="owner"></span></p>
-      <p><b>Category:</b> <span id="category"></span></p>
-      <p><b>Location:</b> <span id="location"></span></p>
-    </div>
+  <div class="box">
+    <h1>🎉 Welcome!</h1>
+    <div id="details">Loading…</div>
   </div>
 
   <script>
-    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbznSdyf_IBX5zFxtrr9VGvHYZJBmIc86EG8Lik9Pw82Vxy2bb5JqdO11T0Lb_mB4n9H/exec";
+    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzfKDe7l0mCabFqCeGE5d3gNw_Hyjy8GlbgpGxpkGoZvFBnl9iWFFLD8lnMOydbxaaE/exec";
 
-    function jsonpFetch(params) {
-      return new Promise((resolve, reject) => {
-        const cbName = "cb_" + Date.now();
-        window[cbName] = (resp) => { delete window[cbName]; resolve(resp); };
-        const s = document.createElement("script");
-        params.callback = cbName;
-        s.src = APPS_SCRIPT_URL + "?" + new URLSearchParams(params).toString();
-        s.onerror = () => reject(new Error("Network error"));
-        document.head.appendChild(s);
+    function jsonp(params){
+      return new Promise((res,rej)=>{
+        const cb="cb"+Date.now();
+        window[cb]=d=>{delete window[cb];script.remove();res(d)};
+        const script=document.createElement("script");
+        params.callback=cb;
+        script.src=APPS_SCRIPT_URL+"?"+new URLSearchParams(params);
+        script.onerror=()=>rej(new Error("Network error"));
+        document.head.appendChild(script);
       });
     }
 
-    async function loadBusiness() {
-      const bizId = new URLSearchParams(window.location.search).get("businessId");
-      if (!bizId) { 
-        document.getElementById("error").innerText = "Missing businessId"; 
-        document.getElementById("error").style.display="block"; 
-        return; 
-      }
-      try {
-        const resp = await jsonpFetch({ action:"getThankYou", businessId: bizId });
-        document.getElementById("loading").style.display="none";
-        if (resp && resp.success) {
-          document.getElementById("thankyou-content").style.display="block";
-          document.getElementById("business-name-display").innerText = resp.business.businessName;
-          document.getElementById("bizName").innerText = resp.business.businessName;
-          document.getElementById("owner").innerText = resp.business.ownerName;
-          document.getElementById("category").innerText = resp.business.category;
-          document.getElementById("location").innerText = resp.business.location;
-        } else {
-          document.getElementById("error").innerText = resp.error || "Error loading business data";
-          document.getElementById("error").style.display="block";
+    (async ()=>{
+      const id=new URLSearchParams(location.search).get("businessId");
+      if(!id){document.getElementById("details").innerHTML="<p class='error'>Missing businessId</p>";return;}
+      try{
+        const resp=await jsonp({action:"getThankYou",businessId:id});
+        if(resp.success){
+          const b=resp.business;
+          document.getElementById("details").innerHTML=
+            `<p><b>${b.businessName}</b> (${b.ownerName})</p>
+             <p>Email: ${b.email}</p>
+             <p>Location: ${b.location}</p>
+             ${resp.websiteUrl?`<p><a href="${resp.websiteUrl}" target="_blank">View Website</a></p>`:""}`;
+        }else{
+          document.getElementById("details").innerHTML="<p class='error'>"+(resp.error||"Error")+"</p>";
         }
-      } catch(err) {
-        document.getElementById("loading").style.display="none";
-        document.getElementById("error").innerText = err.message;
-        document.getElementById("error").style.display="block";
+      }catch(e){
+        document.getElementById("details").innerHTML="<p class='error'>"+e.message+"</p>";
       }
-    }
-    loadBusiness();
+    })();
   </script>
 </body>
 </html>
