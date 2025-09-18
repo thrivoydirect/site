@@ -1,74 +1,58 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Thrivoy Dashboard</title>
   <style>
-    body { font-family: Arial,sans-serif; background:#f0f2f5; margin:0; padding:20px; }
-    .container { max-width:1000px; margin:auto; background:white; padding:30px; border-radius:10px; }
-    h1 { color:#1166EE; }
-    .error { background:#f8d7da; color:#721c24; padding:15px; border-radius:8px; margin-top:20px; display:none; }
-    .loading { margin:20px 0; }
-    .card { background:#f9f9f9; padding:20px; border-radius:8px; margin-top:20px; }
+    body{font-family:Arial,Helvetica,sans-serif;background:#f2f4f8}
+    .box{max-width:900px;margin:40px auto;padding:24px;background:#fff;border-radius:8px}
+    h1{color:#2f80ed}
+    .error{color:#a00}
+    .card{margin-top:16px;padding:14px;border:1px solid #ddd;border-radius:6px}
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>🚀 Thrivoy Dashboard</h1>
-    <div class="loading" id="loading">⏳ Loading dashboard...</div>
-    <div class="error" id="error"></div>
-    <div id="dashboard-content" style="display:none;">
-      <div class="card">
-        <h3>Business Overview</h3>
-        <p><b>Name:</b> <span id="bizName"></span></p>
-        <p><b>Owner:</b> <span id="owner"></span></p>
-        <p><b>Status:</b> <span id="status"></span></p>
-      </div>
-    </div>
+  <div class="box">
+    <h1>📊 Dashboard</h1>
+    <div id="content">Loading…</div>
   </div>
 
   <script>
-    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbznSdyf_IBX5zFxtrr9VGvHYZJBmIc86EG8Lik9Pw82Vxy2bb5JqdO11T0Lb_mB4n9H/exec";
+    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzfKDe7l0mCabFqCeGE5d3gNw_Hyjy8GlbgpGxpkGoZvFBnl9iWFFLD8lnMOydbxaaE/exec";
 
-    function jsonpFetch(params) {
-      return new Promise((resolve, reject) => {
-        const cbName = "cb_" + Date.now();
-        window[cbName] = (resp) => { delete window[cbName]; resolve(resp); };
-        const s = document.createElement("script");
-        params.callback = cbName;
-        s.src = APPS_SCRIPT_URL + "?" + new URLSearchParams(params).toString();
-        s.onerror = () => reject(new Error("Network error"));
-        document.head.appendChild(s);
+    function jsonp(params){
+      return new Promise((res,rej)=>{
+        const cb="cb"+Date.now();
+        window[cb]=d=>{delete window[cb];script.remove();res(d)};
+        const script=document.createElement("script");
+        params.callback=cb;
+        script.src=APPS_SCRIPT_URL+"?"+new URLSearchParams(params);
+        script.onerror=()=>rej(new Error("Network error"));
+        document.head.appendChild(script);
       });
     }
 
-    async function loadDashboard() {
-      const bizId = new URLSearchParams(window.location.search).get("businessId");
-      if (!bizId) { 
-        document.getElementById("error").innerText = "Missing businessId"; 
-        document.getElementById("error").style.display="block"; 
-        return; 
-      }
-      try {
-        const resp = await jsonpFetch({ action:"getDashboard", businessId: bizId });
-        document.getElementById("loading").style.display="none";
-        if (resp && resp.success) {
-          document.getElementById("dashboard-content").style.display="block";
-          document.getElementById("bizName").innerText = resp.business.businessName;
-          document.getElementById("owner").innerText = resp.business.ownerName;
-          document.getElementById("status").innerText = resp.business.subscriptionStatus || "Trial";
-        } else {
-          document.getElementById("error").innerText = resp.error || "Error loading dashboard";
-          document.getElementById("error").style.display="block";
+    (async ()=>{
+      const id=new URLSearchParams(location.search).get("businessId");
+      if(!id){document.getElementById("content").innerHTML="<p class='error'>Missing businessId</p>";return;}
+      try{
+        const resp=await jsonp({action:"getDashboard",businessId:id});
+        if(resp.success){
+          const b=resp.business;
+          document.getElementById("content").innerHTML=
+            `<div class="card"><b>${b.businessName}</b> — ${b.ownerName}</div>
+             <div class="card">Email: ${b.email}</div>
+             <div class="card">Category: ${b.category}</div>
+             <div class="card">Location: ${b.location}</div>
+             ${resp.websiteUrl?`<div class="card"><a href="${resp.websiteUrl}" target="_blank">View Website</a></div>`:""}`;
+        }else{
+          document.getElementById("content").innerHTML="<p class='error'>"+(resp.error||"Error")+"</p>";
         }
-      } catch(err) {
-        document.getElementById("loading").style.display="none";
-        document.getElementById("error").innerText = err.message;
-        document.getElementById("error").style.display="block";
+      }catch(e){
+        document.getElementById("content").innerHTML="<p class='error'>"+e.message+"</p>";
       }
-    }
-    loadDashboard();
+    })();
   </script>
 </body>
 </html>
