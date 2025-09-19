@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Your Business Website - Thrivoy</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Create Your Website</h1>
+            <p>Tell us about your business</p>
+        </header>
+        
+        <form id="onboard-form" class="onboard-form">
+            <div class="form-section">
+                <h3>Basic Information</h3>
+                <input type="text" name="businessName" placeholder="Business Name" required>
+                <input type="text" name="ownerName" placeholder="Your Name" required>
+                <input type="email" name="email" placeholder="Email Address" required>
+                <input type="tel" name="phone" placeholder="Phone Number" required>
+                <select name="category" required>
+                    <option value="">Select Industry</option>
+                    <option value="healthcare">Healthcare</option>
+                    <option value="insurance">Insurance</option>
+                    <option value="technology">Technology</option>
+                    <option value="education">Education</option>
+                    <option value="consulting">Consulting</option>
+                    <option value="services">Services</option>
+                </select>
+                <input type="text" name="location" placeholder="City, State" required>
+            </div>
+            
+            <div class="form-section">
+                <h3>About Your Business</h3>
+                <textarea name="description" placeholder="Describe your business" rows="3"></textarea>
+                <input type="text" name="targetAudience" placeholder="Who are your customers?">
+                <input type="text" name="uniqueValue" placeholder="What makes you unique?">
+                <input type="text" name="keyBenefits" placeholder="Key benefits you provide">
+            </div>
+            
+            <div class="form-section">
+                <h3>Contact & Branding</h3>
+                <input type="tel" name="whatsappNumber" placeholder="WhatsApp Number (optional)">
+                <label>
+                    <input type="checkbox" name="showWhatsApp" value="true" checked>
+                    Show WhatsApp contact on website
+                </label>
+                <input type="color" name="brandPrimary" value="#1166EE">
+                <label for="brandPrimary">Primary Color</label>
+                <input type="color" name="brandSecondary" value="#FF8800">
+                <label for="brandSecondary">Secondary Color</label>
+            </div>
+            
+            <button type="submit" id="submit-btn">
+                <span class="btn-text">Create My Website</span>
+                <span class="btn-loading">Creating...</span>
+            </button>
+        </form>
+        
+        <div id="result-message" class="result-message"></div>
+    </div>
+    
+    <script>
+        const API_URL = 'https://script.google.com/macros/s/AKfycby4X4UD4luxxCizUjd_x5RPLGyOhfehBVkxqpe8hnjqcPNN-Rmzsz41ed5pj35Cktfq/exec'; // Replace with your actual URL
+        
+        document.getElementById('onboard-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const submitBtn = document.getElementById('submit-btn');
+            const btnText = submitBtn.querySelector('.btn-text');
+            const btnLoading = submitBtn.querySelector('.btn-loading');
+            const resultDiv = document.getElementById('result-message');
+            
+            // Show loading state
+            submitBtn.disabled = true;
+            btnText.style.display = 'none';
+            btnLoading.style.display = 'inline';
+            resultDiv.style.display = 'none';
+            
+            const formData = new FormData(this);
+            formData.append('action', 'onboard');
+            
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    resultDiv.className = 'result-message success';
+                    resultDiv.innerHTML = `
+                        <h3>🎉 Website Created Successfully!</h3>
+                        <p><strong>Business ID:</strong> ${result.businessId}</p>
+                        <p><strong>Website URL:</strong> <a href="${result.websiteUrl}" target="_blank">${result.websiteUrl}</a></p>
+                        <p>Check your email for complete setup instructions!</p>
+                        <a href="thank-you.html?businessId=${result.businessId}" class="btn">View Dashboard</a>
+                    `;
+                    this.reset();
+                } else {
+                    throw new Error(result.error || 'Website creation failed');
+                }
+            } catch (error) {
+                resultDiv.className = 'result-message error';
+                resultDiv.innerHTML = `
+                    <h3>❌ Error</h3>
+                    <p>${error.message}</p>
+                    <p>Please try again or contact support.</p>
+                `;
+            } finally {
+                submitBtn.disabled = false;
+                btnText.style.display = 'inline';
+                btnLoading.style.display = 'none';
+                resultDiv.style.display = 'block';
+                resultDiv.scrollIntoView({ behavior: 'smooth' });
+            }
+        });
+    </script>
+</body>
+</html>
