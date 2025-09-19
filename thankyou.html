@@ -1,56 +1,88 @@
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Thank You — Thrivoy</title>
-  <style>
-    body{font-family:Arial,Helvetica,sans-serif;background:#f7f8fb}
-    .box{max-width:700px;margin:40px auto;padding:24px;background:#fff;border-radius:8px}
-    h1{color:#28a745}
-    .error{color:#a00}
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to Thrivoy!</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <div class="box">
-    <h1>🎉 Welcome!</h1>
-    <div id="details">Loading…</div>
-  </div>
-
-  <script>
-    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzfKDe7l0mCabFqCeGE5d3gNw_Hyjy8GlbgpGxpkGoZvFBnl9iWFFLD8lnMOydbxaaE/exec";
-
-    function jsonp(params){
-      return new Promise((res,rej)=>{
-        const cb="cb"+Date.now();
-        window[cb]=d=>{delete window[cb];script.remove();res(d)};
-        const script=document.createElement("script");
-        params.callback=cb;
-        script.src=APPS_SCRIPT_URL+"?"+new URLSearchParams(params);
-        script.onerror=()=>rej(new Error("Network error"));
-        document.head.appendChild(script);
-      });
-    }
-
-    (async ()=>{
-      const id=new URLSearchParams(location.search).get("businessId");
-      if(!id){document.getElementById("details").innerHTML="<p class='error'>Missing businessId</p>";return;}
-      try{
-        const resp=await jsonp({action:"getThankYou",businessId:id});
-        if(resp.success){
-          const b=resp.business;
-          document.getElementById("details").innerHTML=
-            `<p><b>${b.businessName}</b> (${b.ownerName})</p>
-             <p>Email: ${b.email}</p>
-             <p>Location: ${b.location}</p>
-             ${resp.websiteUrl?`<p><a href="${resp.websiteUrl}" target="_blank">View Website</a></p>`:""}`;
-        }else{
-          document.getElementById("details").innerHTML="<p class='error'>"+(resp.error||"Error")+"</p>";
+    <div class="container">
+        <div id="loading">Loading your dashboard...</div>
+        <div id="dashboard" style="display:none;">
+            <!-- Dashboard content will be loaded here -->
+        </div>
+    </div>
+    
+    <script>
+        const API_URL = 'https://script.google.com/macros/s/AKfycby4X4UD4luxxCizUjd_x5RPLGyOhfehBVkxqpe8hnjqcPNN-Rmzsz41ed5pj35Cktfq/exec'; // Replace with your actual URL
+        
+        async function loadDashboard() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const businessId = urlParams.get('businessId');
+            
+            if (!businessId) {
+                document.getElementById('loading').innerHTML = '❌ No business ID provided';
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_URL}?action=getThankYou&businessId=${businessId}`);
+                const result = await response.json();
+                
+                if (result.success) {
+                    const dashboard = document.getElementById('dashboard');
+                    dashboard.innerHTML = `
+                        <header>
+                            <h1>🎉 Welcome, ${result.business.businessName}!</h1>
+                            <p>Your website is live and ready!</p>
+                        </header>
+                        
+                        <div class="dashboard-grid">
+                            <div class="card">
+                                <h3>🌐 Your Website</h3>
+                                <p><a href="${result.websiteUrl}" target="_blank">${result.websiteUrl}</a></p>
+                                <small>May take 1-3 minutes to go live</small>
+                            </div>
+                            
+                            <div class="card">
+                                <h3>📊 Business Details</h3>
+                                <p><strong>Owner:</strong> ${result.business.ownerName}</p>
+                                <p><strong>Location:</strong> ${result.business.location}</p>
+                                <p><strong>Category:</strong> ${result.business.category}</p>
+                            </div>
+                            
+                            ${result.invoice ? `
+                            <div class="card payment-card">
+                                <h3>💳 Complete Your Setup</h3>
+                                <p>Monthly subscription: ₹499</p>
+                                <p>7-day free trial active</p>
+                                ${result.invoice.upiDeepLink ? `<a href="${result.invoice.upiDeepLink}" class="btn">Pay Now</a>` : ''}
+                            </div>
+                            ` : ''}
+                            
+                            <div class="card">
+                                <h3>📧 Next Steps</h3>
+                                <ul>
+                                    <li>Check your email for detailed instructions</li>
+                                    <li>Share your website link</li>
+                                    <li>Contact support if needed</li>
+                                </ul>
+                            </div>
+                        </div>
+                    `;
+                    
+                    document.getElementById('loading').style.display = 'none';
+                    dashboard.style.display = 'block';
+                } else {
+                    document.getElementById('loading').innerHTML = '❌ ' + result.error;
+                }
+            } catch (error) {
+                document.getElementById('loading').innerHTML = '❌ Failed to load dashboard: ' + error.message;
+            }
         }
-      }catch(e){
-        document.getElementById("details").innerHTML="<p class='error'>"+e.message+"</p>";
-      }
-    })();
-  </script>
+        
+        loadDashboard();
+    </script>
 </body>
 </html>
