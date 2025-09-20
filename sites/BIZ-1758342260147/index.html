@@ -1,0 +1,65 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="We, Shanky Engineering Works, ISO9001:2008 certified company Incepted in the year 1994, with the determined objective of offering a high-end range of Heat Excha"><title>Shanky Engineering Works - Your Needs, Our Expertise</title><link rel="stylesheet" href="./styles.css"></head><body><header class="site-header"><div class="container"><nav class="navbar"><div class="nav-brand"><h1 class="site-title">Shanky Engineering Works</h1><p class="site-tagline">Your Needs, Our Expertise</p></div><div class="nav-links"><a href="#about">About</a><a href="#contact">Contact</a></div></nav></div></header><section class="hero-section"><div class="container"><div class="hero-content"><h2 class="hero-title">Helping Process Manufacturers, Discrete Manufacturers achieve having wide domain expertise in Ghaziabad, Uttar Pradesh, INdia</h2><p class="hero-description">We, Shanky Engineering Works, ISO9001:2008 certified company Incepted in the year 1994, with the determined objective of offering a high-end range of Heat Exchanger, Plate Heat Exchanger, Pressure Vessel, SS Storage Tank, Shell and Tube Condenser, Surface Condenser, etc.</p><p class="hero-location">📍 Ghaziabad, Uttar Pradesh, INdia</p><div class="hero-actions"><a href="#" id="hero-contact-btn" class="btn btn-primary">Get Started Today</a><a href="#about" class="btn btn-secondary">Learn More</a></div></div></div></section><section id="about" class="about-section"><div class="container"><h2>About Shanky Engineering Works</h2><div class="about-content"><div class="about-text"><p>We, Shanky Engineering Works, ISO9001:2008 certified company Incepted in the year 1994, with the determined objective of offering a high-end range of Heat Exchanger, Plate Heat Exchanger, Pressure Vessel, SS Storage Tank, Shell and Tube Condenser, Surface Condenser, etc. to a market looking for quality products.We also provide the Heat Exchanger Retubing Services to our clients.</p><p>Shanky Engineering Works is dedicated to delivering exceptional results for our clients. We primarily work with Process Manufacturers, Discrete Manufacturers, providing having wide domain expertise, we offer the complete solution including quality products at affordable price and reliable service. our young professionals are technically qualified and trained by various institutions. they hold affluent industry experience of 26 years to carry out the assigned task effectively. it is our business policy to make major investments from time to time in development &amp; critical jobs for various industries.  under the inspiring guidance of our mentor, mr. u.c. dubey, we have been able to make a name for ourselves in the domain.. Located in Ghaziabad, Uttar Pradesh, INdia, we serve the local community and beyond. We are committed to building lasting relationships through trust, quality, and measurable results.</p></div></div></div></section><section id="contact" class="contact-section"><div class="container"><h2>Get In Touch</h2><div class="contact-content"><div class="contact-info"><h3>Contact Information</h3><p><strong>Contact Person:</strong> Shanky</p><p><strong>Email:</strong> <a href="mailto:periafmalayappa@gmail.com">periafmalayappa@gmail.com</a></p><p><strong>Phone:</strong> <a href="tel:917892159170">917892159170</a></p><p><strong>Location:</strong> Ghaziabad, Uttar Pradesh, INdia</p></div></div></div></section><footer class="site-footer"><div class="container"><div class="footer-content"><div class="footer-section"><h4>Shanky Engineering Works</h4><p>Your Needs, Our Expertise</p></div></div><div class="footer-bottom"><p>&copy; 2025 Shanky Engineering Works. All rights reserved.</p><p>Powered by <a href="https://thrivoy.com" target="_blank">Thrivoy</a> - AI-powered websites</p></div></div></footer><script>window.THRIVOY_CONFIG = {clientWA: "919092008720",businessId: "BIZ-1758342260147",siteName: "Shanky Engineering Works",ownerName: "Shanky",showWhatsApp: true};</script>
+<div class="wh-widget">
+  <a id="wh_client_btn" class="wh-btn" href="#" aria-label="Message us on WhatsApp" style="display: none;">
+    <span class="wh-mini">💬</span>
+    <span class="wh-label">Chat with us</span>
+  </a>
+  <a id="wh_support_btn" class="wh-small" href="#" aria-label="Contact Thrivoy support">
+    Thrivoy Support
+  </a>
+</div>
+
+<script>
+(function() {
+  'use strict';
+  
+  var config = window.THRIVOY_CONFIG || {};
+  var support = "917892159170";
+  var client = (config.clientWA || "").replace(/\D/g, "");
+  var siteName = config.siteName || document.title || "this business";
+  var currentPage = location.href;
+  
+  function createWhatsAppUrl(number, message) {
+    if (!number || number.length < 10) return '#';
+    var cleanNumber = number.replace(/[^\d]/g, '');
+    var encodedMessage = message ? encodeURIComponent(message) : '';
+    return "https://wa.me/" + cleanNumber + (encodedMessage ? "?text=" + encodedMessage : "");
+  }
+  
+  function logWhatsAppClick(type, number) {
+    try {
+      // Optional: Send analytics to your backend
+      console.log('WhatsApp click:', type, number);
+    } catch (e) {
+      // Silent fail for logging
+    }
+  }
+  
+  // Setup client WhatsApp button
+  var clientBtn = document.getElementById('wh_client_btn');
+  var supportBtn = document.getElementById('wh_support_btn');
+  
+  if (client && client.length >= 10 && config.showWhatsApp) {
+    var clientMessage = "Hi " + siteName + "! I found your website (" + currentPage + ") and would like to know more about your services.";
+    clientBtn.href = createWhatsAppUrl(client, clientMessage);
+    clientBtn.style.display = 'flex';
+    
+    clientBtn.addEventListener('click', function(e) {
+      logWhatsAppClick('client', client);
+    });
+  }
+  
+  // Setup support button
+  if (support) {
+    var supportMessage = "Hi Thrivoy! I need help with " + siteName + " (" + currentPage + ")";
+    supportBtn.href = createWhatsAppUrl(support, supportMessage);
+    
+    supportBtn.addEventListener('click', function(e) {
+      logWhatsAppClick('support', support);
+    });
+  } else {
+    supportBtn.style.display = 'none';
+  }
+})();
+</script>
+</body></html>
