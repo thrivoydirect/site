@@ -836,7 +836,7 @@
             try {
                 showAlert('Generating payment link...', 'info');
                 
-                const response = await makeAPIRequest('createPayment', {
+                const response = await makeAPIRequest('createPaymentInvoice', {
                     businessId: businessId,
                     amount: 499
                 });
