@@ -807,6 +807,18 @@ class ThrivoyAuth {
         window.location.href = 'login.html' + (businessId ? '?businessId=' + businessId : '');
     }
 }
+
+    // Initialize authentication
+const auth = new ThrivoyAuth();
+
+// Check authentication before page load
+document.addEventListener('DOMContentLoaded', async function() {
+    const isAuthenticated = await auth.checkAuthOnLoad();
+    if (isAuthenticated) {
+        initializeDashboard();
+    }
+});
+
     
     <script>
         // Configuration
