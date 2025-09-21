@@ -855,7 +855,7 @@
                 const formData = getFormData();
                 
                 // Make CORS-friendly request to your Apps Script
-                const response = await makeAPIRequest('generateTagline', formData);
+                const response = await makeAPIRequest('generateSmartTaglineForBusiness', formData);
                 
                 if (response.success && response.taglines) {
                     document.getElementById('preview-tagline').textContent = response.taglines[0] || response.tagline;
