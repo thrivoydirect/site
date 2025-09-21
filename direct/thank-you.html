@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to Thrivoy - Your Website is Ready!</title>
+    <meta name="description" content="Congratulations! Your professional website is now live. Discover what's next with Thrivoy.">
+    
+    <style>
+        :root {
+            --primary-color: #1166EE;
+            --secondary-color: #FF8800;
+            --accent-color: #28a745;
+            --text-color: #333;
+            --text-light: #666;
+            --background: #f8f9fa;
+            --card-bg: #ffffff;
+            --border-color: #e9ecef;
+            --shadow: 0 2px 10px rgba(0,0,0,0.1);
+            --shadow-lg: 0 4px 20px rgba(0,0,0,0.15);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+        }
+
+        .success-card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+            text-align: center;
+        }
+
+        .success-header {
+            background: linear-gradient(135deg, var(--accent-color), #20c997);
+            color: white;
+            padding: 40px 30px;
+        }
+
+        .success-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-30px);
+            }
+            60% {
+                transform: translateY(-15px);
+            }
+        }
+
+        .success-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .success-header p {
+            font-size: 1.2rem;
+            opacity: 0.95;
+        }
+
+        .success-content {
+            padding: 40px;
+        }
+
+        .business-info {
+            background: var(--background);
+            border-radius: 12px;
+            padding: 24px;
+            margin: 20px 0;
+        }
+
+        .business-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 8px;
+        }
+
+        .business-details {
+            color: var(--text-light);
+            margin-bottom: 20px;
+        }
+
+        .website-preview {
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            overflow: hidden;
+            margin: 20px 0;
+            background: white;
+        }
+
+        .preview-header {
+            background: var(--background);
+            padding: 12px 20px;
+            font-size: 0.9rem;
+            color: var(--text-light);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent-color);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.2);
+                opacity: 0.7;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .preview-iframe {
+            width: 100%;
+            height: 300px;
+            border: none;
+        }
+
+        .action-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+            margin: 30px 0;
+        }
+
+        .btn {
+            padding: 16px 24px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            min-height: 56px;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #0052cc;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-secondary {
+            background: var(--secondary-color);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #e67700;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-success {
+            background: var(--accent-color);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #1e7e34;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--text-color);
+            border: 2px solid var(--border-color);
+        }
+
+        .btn-outline:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .feature-card {
+            background: var(--background);
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .feature-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .feature-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .feature-description {
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+
+        .payment-reminder {
+            background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+            border: 1px solid var(--secondary-color);
+            border-radius: 12px;
+            padding: 24px;
+            margin: 30px 0;
+            text-align: center;
+        }
+
+        .payment-reminder h3 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+
+        .trial-info {
+            background: rgba(17, 102, 238, 0.1);
+            border: 1px solid rgba(17, 102, 238, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .trial-info h4 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        .countdown {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .loading-message {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-light);
+        }
+
+        .loading-spinner {
+            width: 32px;
+            height: 32px;
+            border: 3px solid var(--border-color);
+            border-top: 3px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .share-section {
+            background: var(--background);
+            border-radius: 12px;
+            padding: 24px;
+            margin: 30px 0;
+        }
+
+        .share-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .share-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .share-whatsapp { background: #25D366; color: white; }
+        .share-linkedin { background: #0077b5; color: white; }
+        .share-facebook { background: #1877f2; color: white; }
+        .share-twitter { background: #1da1f2; color: white; }
+
+        @media (max-width: 768px) {
+            .success-header {
+                padding: 30px 20px;
+            }
+
+            .success-header h1 {
+                font-size: 2rem;
+            }
+
+            .success-content {
+                padding: 30px 20px;
+            }
+
+            .action-buttons {
+                grid-template-columns: 1fr;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .share-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .share-btn {
+                width: 100%;
+                max-width: 200px;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="success-card">
+            <!-- Success Header -->
+            <div class="success-header">
+                <div class="success-icon">🎉</div>
+                <h1>Congratulations!</h1>
+                <p>Your professional website is now live and ready for customers</p>
+            </div>
+
+            <!-- Success Content -->
+            <div class="success-content" id="main-content">
+                <!-- Loading State -->
+                <div class="loading-message" id="loading-section">
+                    <div class="loading-spinner"></div>
+                    <h3>Loading your website details...</h3>
+                    <p>This will just take a moment</p>
+                </div>
+
+                <!-- Main Content (hidden initially) -->
+                <div id="content-section" style="display: none;">
+                    <!-- Business Info -->
+                    <div class="business-info">
+                        <div class="business-name" id="business-name">Your Business</div>
+                        <div class="business-details" id="business-details">Loading details...</div>
+                    </div>
+
+                    <!-- Website Preview -->
+                    <div class="website-preview">
+                        <div class="preview-header">
+                            <div class="status-dot"></div>
+                            <span>Live Website: </span>
+                            <span id="website-url">Loading...</span>
+                        </div>
+                        <iframe class="preview-iframe" id="website-iframe" src="about:blank"></iframe>
+                    </div>
+
+                    <!-- Trial Information -->
+                    <div class="trial-info">
+                        <h4>Your 7-Day Free Trial Has Started!</h4>
+                        <p>Enjoy all premium features at no cost. Your trial ends on <span id="trial-end-date">...</span></p>
+                        <div class="countdown" id="trial-countdown">7 days remaining</div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="action-buttons">
+                        <a class="btn btn-primary" id="view-website" href="#" target="_blank">
+                            🌐 View Your Website
+                        </a>
+                        <a class="btn btn-secondary" id="dashboard-link" href="#" target="_blank">
+                            📊 Open Dashboard
+                        </a>
+                        <a class="btn btn-success" href="https://wa.me/917892159170" target="_blank">
+                            💬 Get Support
+                        </a>
+                    </div>
+
+                    <!-- Features Overview -->
+                    <div class="features-grid">
+                        <div class="feature-card">
+                            <div class="feature-icon">🤖</div>
+                            <div class="feature-title">AI-Powered Content</div>
+                            <div class="feature-description">Smart content generation tailored to your business</div>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">📱</div>
+                            <div class="feature-title">Mobile Responsive</div>
+                            <div class="feature-description">Perfect on all devices and screen sizes</div>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">⚡</div>
+                            <div class="feature-title">Fast Loading</div>
+                            <div class="feature-description">Optimized for speed and performance</div>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">🔒</div>
+                            <div class="feature-title">Secure & Reliable</div>
+                            <div class="feature-description">HTTPS enabled with 99.9% uptime</div>
+                        </div>
+                    </div>
+
+                    <!-- Share Your Website -->
+                    <div class="share-section">
+                        <h3 style="margin-bottom: 15px;">Share Your New Website</h3>
+                        <p style="margin-bottom: 20px; color: var(--text-light);">Let your customers and network know about your new online presence!</p>
+                        
+                        <div class="share-buttons">
+                            <button class="share-btn share-whatsapp" onclick="shareOnWhatsApp()">
+                                📱 WhatsApp
+                            </button>
+                            <button class="share-btn share-linkedin" onclick="shareOnLinkedIn()">
+                                💼 LinkedIn
+                            </button>
+                            <button class="share-btn share-facebook" onclick="shareOnFacebook()">
+                                📘 Facebook
+                            </button>
+                            <button class="share-btn share-twitter" onclick="shareOnTwitter()">
+                                🐦 Twitter
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Payment Reminder (shown near trial end) -->
+                    <div class="payment-reminder" id="payment-reminder" style="display: none;">
+                        <h3>Keep Your Website Active</h3>
+                        <p>Your trial ends soon. Continue with Thrivoy for just ₹499/month to keep all features active.</p>
+                        <button class="btn btn-warning" onclick="handlePayment()">
+                            💳 Continue Subscription
+                        </button>
+                    </div>
+
+                    <!-- What's Next Section -->
+                    <div class="trial-info">
+                        <h4>What Happens Next?</h4>
+                        <ul style="text-align: left; max-width: 500px; margin: 0 auto;">
+                            <li>Your website is now live and searchable on Google</li>
+                            <li>You'll receive a welcome email with all login details</li>
+                            <li>AI content will be generated for your social media</li>
+                            <li>Payment link will be sent via email before trial expires</li>
+                            <li>Our support team is available 24/7 to help you</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        const CONFIG = {
+            // Replace with your Apps Script web app URL
+            API_URL: 'https://script.google.com/macros/s/AKfycbxVI8GIafUhHTOHv2pDTiT42820sEFyJlgSEeGYTdmGG9PpDOiqbFQA_ivZf_PzAzO0/exec',
+            DEBUG: true
+        };
+
+        // Global state
+        let businessId = null;
+        let businessData = null;
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            businessId = getBusinessIdFromUrl();
+            if (!businessId) {
+                showError('No business ID provided. Please access this page from your welcome email.');
+                return;
+            }
+            
+            loadBusinessData();
+        });
+
+        function getBusinessIdFromUrl() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('businessId') || urlParams.get('id') || urlParams.get('biz');
+        }
+
+        async function loadBusinessData() {
+            try {
+                const response = await makeAPIRequest('getThankYou', { businessId });
+                
+                if (response.success) {
+                    businessData = response.business;
+                    populatePageContent();
+                    setupWebsitePreview(response.websiteUrl);
+                    calculateTrialInfo();
+                } else {
+                    throw new Error(response.error || 'Failed to load business data');
+                }
+                
+            } catch (error) {
+                console.error('Failed to load business data:', error);
+                showError(`Unable to load your information: ${error.message}`);
+            }
+        }
+
+        function populatePageContent() {
+            if (!businessData) return;
+            
+            // Update business info
+            document.getElementById('business-name').textContent = businessData.businessName || 'Your Business';
+            
+            const detailsParts = [];
+            if (businessData.ownerName) detailsParts.push(`Owner: ${businessData.ownerName}`);
+            if (businessData.location) detailsParts.push(`Location: ${businessData.location}`);
+            if (businessData.category) detailsParts.push(`Industry: ${businessData.category}`);
+            
+            document.getElementById('business-details').textContent = detailsParts.join(' • ');
+            
+            // Show main content
+            document.getElementById('loading-section').style.display = 'none';
+            document.getElementById('content-section').style.display = 'block';
+        }
+
+        function setupWebsitePreview(websiteUrl) {
+            if (!websiteUrl) return;
+            
+            const urlElement = document.getElementById('website-url');
+            const iframeElement = document.getElementById('website-iframe');
+            const viewButton = document.getElementById('view-website');
+            const dashboardButton = document.getElementById('dashboard-link');
+            
+            urlElement.textContent = websiteUrl;
+            viewButton.href = websiteUrl;
+            
+            // Set up dashboard link
+            const dashboardUrl = websiteUrl.replace('/sites/', '/dashboard.html?businessId=');
+            dashboardButton.href = dashboardUrl.split('/')[0] + '//' + dashboardUrl.split('/')[2] + '/dashboard.html?businessId=' + businessId;
+            
+            // Load website in iframe with delay to allow site generation
+            setTimeout(() => {
+                iframeElement.src = websiteUrl;
+                
+                // Handle iframe load errors
+                iframeElement.onerror = function() {
+                    this.style.display = 'none';
+                    const parent = this.parentNode;
+                    parent.innerHTML = `
+                        <div style="padding: 40px; text-align: center; color: var(--text-light);">
+                            <h4>Website is being generated...</h4>
+                            <p>Your site will be available in 2-3 minutes. Please check back soon!</p>
+                            <a href="${websiteUrl}" target="_blank" class="btn btn-primary" style="margin-top: 15px;">
+                                Try Opening Website
+                            </a>
+                        </div>
+                    `;
+                };
+            }, 2000);
+        }
+
+        function calculateTrialInfo() {
+            if (!businessData) return;
+            
+            const trialEndDate = businessData.trialEndsAt;
+            if (!trialEndDate) return;
+            
+            const endDate = new Date(trialEndDate);
+            const now = new Date();
+            const daysRemaining = Math.ceil((endDate - now) / (1000 * 60 * 60 * 24));
+            
+            document.getElementById('trial-end-date').textContent = endDate.toLocaleDateString('en-US', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+            
+            const countdownElement = document.getElementById('trial-countdown');
+            if (daysRemaining > 0) {
+                countdownElement.textContent = `${daysRemaining} days remaining`;
+                countdownElement.style.color = daysRemaining <= 3 ? 'var(--secondary-color)' : 'var(--accent-color)';
+                
+                // Show payment reminder if trial ending soon
+                if (daysRemaining <= 3) {
+                    document.getElementById('payment-reminder').style.display = 'block';
+                }
+            } else {
+                countdownElement.textContent = 'Trial expired';
+                countdownElement.style.color = 'var(--danger-color)';
+                document.getElementById('payment-reminder').style.display = 'block';
+            }
+        }
+
+        function showError(message) {
+            document.getElementById('loading-section').innerHTML = `
+                <div style="text-align: center; padding: 40px;">
+                    <div style="font-size: 3rem; color: var(--secondary-color); margin-bottom: 20px;">⚠️</div>
+                    <h3>Unable to Load Information</h3>
+                    <p>${message}</p>
+                    <div style="margin-top: 30px;">
+                        <a href="https://wa.me/917892159170" target="_blank" class="btn btn-success">
+                            Contact Support
+                        </a>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Sharing functions
+        function shareOnWhatsApp() {
+            if (!businessData) return;
+            
+            const websiteUrl = document.getElementById('website-url').textContent;
+            const message = `Check out ${businessData.businessName}'s new website! ${businessData.description || 'Professional services you can trust.'} ${websiteUrl}`;
+            
+            window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
+        }
+
+        function shareOnLinkedIn() {
+            if (!businessData) return;
+            
+            const websiteUrl = document.getElementById('website-url').textContent;
+            const title = `${businessData.businessName} - Professional Website`;
+            const summary = businessData.description || 'Check out our professional website powered by Thrivoy.';
+            
+            const linkedinUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(websiteUrl)}&title=${encodeURIComponent(title)}&summary=${encodeURIComponent(summary)}`;
+            window.open(linkedinUrl, '_blank');
+        }
+
+        function shareOnFacebook() {
+            const websiteUrl = document.getElementById('website-url').textContent;
+            const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(websiteUrl)}`;
+            window.open(facebookUrl, '_blank');
+        }
+
+        function shareOnTwitter() {
+            if (!businessData) return;
+            
+            const websiteUrl = document.getElementById('website-url').textContent;
+            const text = `Check out ${businessData.businessName}'s professional website! ${businessData.description || ''} #Business #Website`;
+            
+            const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(websiteUrl)}`;
+            window.open(twitterUrl, '_blank');
+        }
+
+        function handlePayment() {
+            // Redirect to dashboard for payment processing
+            const dashboardUrl = document.getElementById('dashboard-link').href;
+            window.open(dashboardUrl, '_blank');
+        }
+
+        // CORS-friendly API request handler
+        async function makeAPIRequest(action, data) {
+            const requestData = { ...data, action };
+            
+            try {
+                return await makeJSONPRequest(action, requestData);
+            } catch (error) {
+                console.error('API Request failed:', error);
+                throw error;
+            }
+        }
+
+        function makeJSONPRequest(action, data) {
+            return new Promise((resolve, reject) => {
+                const callbackName = 'thankYouCallback' + Date.now() + Math.random().toString(36).substr(2, 9);
+                const timeout = setTimeout(() => {
+                    cleanup();
+                    reject(new Error('Request timeout'));
+                }, 30000);
+                
+                window[callbackName] = function(response) {
+                    cleanup();
+                    resolve(response);
+                };
+                
+                const script = document.createElement('script');
+                const params = new URLSearchParams({ ...data, callback: callbackName });
+                script.src = `${CONFIG.API_URL}?${params.toString()}`;
+                
+                script.onerror = function() {
+                    cleanup();
+                    reject(new Error('Network error'));
+                };
+                
+                function cleanup() {
+                    clearTimeout(timeout);
+                    if (window[callbackName]) {
+                        delete window[callbackName];
+                    }
+                    if (script.parentNode) {
+                        script.parentNode.removeChild(script);
+                    }
+                }
+                
+                document.head.appendChild(script);
+            });
+        }
+
+        // Auto-refresh website preview if it fails to load initially
+        setTimeout(() => {
+            const iframe = document.getElementById('website-iframe');
+            if (iframe && iframe.src !== 'about:blank') {
+                // Check if iframe loaded successfully
+                try {
+                    if (!iframe.contentWindow.location.href) {
+                        console.log('Iframe failed to load, will retry...');
+                        setTimeout(() => {
+                            iframe.src = iframe.src + '?refresh=' + Date.now();
+                        }, 5000);
+                    }
+                } catch (e) {
+                    // Cross-origin iframe - assume it loaded successfully
+                    console.log('Iframe loaded (cross-origin)');
+                }
+            }
+        }, 10000);
+    </script>
+</body>
+</html>
