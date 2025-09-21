@@ -529,7 +529,7 @@
 
         async function loadBusinessData() {
             try {
-                const response = await makeAPIRequest('getThankYou', { businessId });
+                const response = await makeAPIRequest('getThankYouData', { businessId });
                 
                 if (response.success) {
                     businessData = response.business;
@@ -636,7 +636,7 @@
         function showError(message) {
             document.getElementById('loading-section').innerHTML = `
                 <div style="text-align: center; padding: 40px;">
-                    <div style="font-size: 3rem; color: var(--secondary-color); margin-bottom: 20px;">⚠️</div>
+                    <div style="font-size: 3rem; color: var(--secondary-color); margin-bottom: 20px;"⚠️</div>
                     <h3>Unable to Load Information</h3>
                     <p>${message}</p>
                     <div style="margin-top: 30px;">
