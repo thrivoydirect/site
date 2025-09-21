@@ -661,6 +661,153 @@
         </div>
     </main>
 
+// Authentication Manager
+class ThrivoyAuth {
+    constructor() {
+        this.token = localStorage.getItem('thrivoy_token');
+        this.businessId = localStorage.getItem('thrivoy_business_id');
+        this.tokenExpires = localStorage.getItem('thrivoy_token_expires');
+        this.API_URL = 'https://script.google.com/macros/s/AKfycbxVI8GIafUhHTOHv2pDTiT42820sEFyJlgSEeGYTdmGG9PpDOiqbFQA_ivZf_PzAzO0/exec';
+    }
+
+    // Check if user is authenticated
+    isAuthenticated() {
+        if (!this.token || !this.businessId || !this.tokenExpires) {
+            return false;
+        }
+        
+        // Check if token is expired
+        const now = new Date();
+        const expires = new Date(this.tokenExpires);
+        
+        if (now >= expires) {
+            this.logout();
+            return false;
+        }
+        
+        return true;
+    }
+
+    // Get current business ID (authenticated)
+    getBusinessId() {
+        return this.isAuthenticated() ? this.businessId : null;
+    }
+
+    // Add authentication to API requests
+    addAuthToRequest(data) {
+        if (this.isAuthenticated()) {
+            data.token = this.token;
+            data.businessId = this.businessId; // Override any provided businessId
+        }
+        return data;
+    }
+
+    // Verify session with server
+    async verifySession() {
+        if (!this.token) return false;
+        
+        try {
+            const response = await this.makeAPIRequest('checkSession', { token: this.token });
+            
+            if (response.success && response.valid) {
+                // Update stored data in case it changed
+                this.businessId = response.businessId;
+                localStorage.setItem('thrivoy_business_id', response.businessId);
+                return true;
+            } else {
+                this.logout();
+                return false;
+            }
+        } catch (error) {
+            console.error('Session verification failed:', error);
+            this.logout();
+            return false;
+        }
+    }
+
+    // Logout and redirect
+    logout() {
+        localStorage.removeItem('thrivoy_token');
+        localStorage.removeItem('thrivoy_business_id');
+        localStorage.removeItem('thrivoy_token_expires');
+        
+        // Redirect to login page
+        window.location.href = 'login.html' + (this.businessId ? '?businessId=' + this.businessId : '');
+    }
+
+    // Enhanced API request with authentication
+    async makeAPIRequest(action, data = {}) {
+        const authenticatedData = this.addAuthToRequest({ ...data, action });
+        
+        return new Promise((resolve, reject) => {
+            const callbackName = 'authCallback' + Date.now() + Math.random().toString(36).substr(2, 5);
+            const timeout = setTimeout(() => {
+                cleanup();
+                reject(new Error('Request timeout'));
+            }, 30000);
+            
+            window[callbackName] = (response) => {
+                cleanup();
+                
+                // Handle authentication errors
+                if (response.requiresAuth || (response.success === false && response.error && response.error.includes('Authentication'))) {
+                    this.logout();
+                    reject(new Error('Authentication required'));
+                    return;
+                }
+                
+                resolve(response);
+            };
+            
+            const script = document.createElement('script');
+            const params = new URLSearchParams({ ...authenticatedData, callback: callbackName });
+            script.src = `${this.API_URL}?${params.toString()}`;
+            
+            script.onerror = () => {
+                cleanup();
+                reject(new Error('Network error'));
+            };
+            
+            function cleanup() {
+                clearTimeout(timeout);
+                if (window[callbackName]) {
+                    delete window[callbackName];
+                }
+                if (script.parentNode) {
+                    script.parentNode.removeChild(script);
+                }
+            }
+            
+            document.head.appendChild(script);
+        });
+    }
+
+    // Check authentication before page load
+    async checkAuthOnLoad() {
+        // First check local storage
+        if (!this.isAuthenticated()) {
+            this.redirectToLogin();
+            return false;
+        }
+        
+        // Then verify with server
+        const isValid = await this.verifySession();
+        if (!isValid) {
+            this.redirectToLogin();
+            return false;
+        }
+        
+        return true;
+    }
+
+    // Redirect to login with current business ID
+    redirectToLogin() {
+        const urlBusinessId = new URLSearchParams(window.location.search).get('businessId');
+        const businessId = urlBusinessId || this.businessId;
+        window.location.href = 'login.html' + (businessId ? '?businessId=' + businessId : '');
+    }
+}
+    
     <script>
         // Configuration
         const CONFIG = {
@@ -694,8 +841,22 @@
             try {
                 showLoadingScreen(true);
                 
-                // Fetch dashboard data
-                dashboardData = await makeAPIRequest('getDashboardData', { businessId });
+                // Check authentication first
+                if (!auth.isAuthenticated()) {
+                    auth.redirectToLogin();
+                    return;
+                }
+                
+                // Get authenticated business ID
+                businessId = auth.getBusinessId();
+                if (!businessId) {
+                    showAlert('Authentication error. Please login again.', 'danger');
+                    auth.logout();
+                    return;
+                }
+                
+                // Fetch dashboard data with authentication
+                dashboardData = await auth.makeAPIRequest('getDashboardData', {});
                 
                 if (dashboardData.success) {
                     businessData = dashboardData.business;
@@ -707,12 +868,16 @@
                 
             } catch (error) {
                 console.error('Dashboard initialization failed:', error);
-                showAlert(`Failed to load dashboard: ${error.message}`, 'danger');
+                
+                if (error.message.includes('Authentication')) {
+                    auth.logout();
+                } else {
+                    showAlert(`Failed to load dashboard: ${error.message}`, 'danger');
+                }
             } finally {
                 showLoadingScreen(false);
             }
         }
-
         function populateDashboard() {
             if (!businessData) return;
             
