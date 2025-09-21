@@ -1,0 +1,1150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Your Professional Website - Thrivoy</title>
+    <meta name="description" content="Create your professional business website in minutes with AI-powered content generation and social media automation.">
+    
+    <style>
+        :root {
+            --primary-color: #1166EE;
+            --secondary-color: #FF8800;
+            --accent-color: #28a745;
+            --danger-color: #dc3545;
+            --warning-color: #ffc107;
+            --text-color: #333;
+            --text-light: #666;
+            --background: #ffffff;
+            --section-bg: #f8f9fa;
+            --border-color: #e9ecef;
+            --shadow: 0 2px 10px rgba(0,0,0,0.1);
+            --shadow-hover: 0 4px 20px rgba(0,0,0,0.15);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px 0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .main-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: var(--shadow-hover);
+            overflow: hidden;
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .card-header h2 {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .card-header p {
+            opacity: 0.9;
+            font-size: 1rem;
+        }
+
+        .form-container {
+            padding: 40px;
+        }
+
+        .form-step {
+            display: none;
+        }
+
+        .form-step.active {
+            display: block;
+        }
+
+        .step-indicator {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        .step {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #e9ecef;
+            color: #666;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            margin: 0 10px;
+            transition: all 0.3s ease;
+        }
+
+        .step.active {
+            background: var(--primary-color);
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .step.completed {
+            background: var(--accent-color);
+            color: white;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            background: white;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(17, 102, 238, 0.1);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            margin-top: 16px;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: auto;
+            margin-right: 12px;
+            transform: scale(1.2);
+        }
+
+        .form-buttons {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            margin-top: 40px;
+        }
+
+        .btn {
+            padding: 14px 28px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            min-height: 48px;
+            justify-content: center;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: #0052cc;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            background: #545b62;
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .btn-full {
+            width: 100%;
+        }
+
+        .loading-spinner {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid transparent;
+            border-top: 2px solid currentColor;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .alert {
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            display: none;
+        }
+
+        .alert.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .alert.info {
+            background: #cce7ff;
+            color: #004085;
+            border: 1px solid #b3d9ff;
+        }
+
+        .pricing-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .pricing-card {
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            padding: 24px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .pricing-card:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .pricing-card.selected {
+            border-color: var(--primary-color);
+            background: rgba(17, 102, 238, 0.05);
+        }
+
+        .pricing-card h3 {
+            color: var(--primary-color);
+            margin-bottom: 8px;
+        }
+
+        .pricing-card .price {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-color);
+            margin: 16px 0;
+        }
+
+        .pricing-card .price .currency {
+            font-size: 1.2rem;
+            vertical-align: top;
+        }
+
+        .features-list {
+            text-align: left;
+            margin: 16px 0;
+        }
+
+        .features-list li {
+            margin-bottom: 8px;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .features-list li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: var(--accent-color);
+            font-weight: bold;
+        }
+
+        .ai-content-preview {
+            background: rgba(17, 102, 238, 0.05);
+            border: 1px solid rgba(17, 102, 238, 0.2);
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            display: none;
+        }
+
+        .ai-content-preview.show {
+            display: block;
+        }
+
+        .preview-item {
+            margin-bottom: 16px;
+        }
+
+        .preview-item h4 {
+            color: var(--primary-color);
+            margin-bottom: 8px;
+        }
+
+        .preview-item p {
+            background: white;
+            padding: 12px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            color: white;
+            opacity: 0.9;
+        }
+
+        .footer a {
+            color: white;
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 15px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .form-container {
+                padding: 30px 20px;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+                gap: 0;
+            }
+
+            .form-buttons {
+                flex-direction: column;
+            }
+
+            .pricing-cards {
+                grid-template-columns: 1fr;
+            }
+
+            .step-indicator {
+                overflow-x: auto;
+                padding-bottom: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Create Your Professional Website</h1>
+            <p>Join thousands of businesses who trust Thrivoy for their online presence. Get your AI-powered website live in minutes!</p>
+        </div>
+
+        <div class="main-card">
+            <div class="card-header">
+                <h2>Let's Build Your Digital Presence</h2>
+                <p>Complete setup in just 3 simple steps</p>
+            </div>
+
+            <div class="form-container">
+                <!-- Step Indicator -->
+                <div class="step-indicator">
+                    <div class="step active" id="step-1">1</div>
+                    <div class="step" id="step-2">2</div>
+                    <div class="step" id="step-3">3</div>
+                </div>
+
+                <!-- Alert Messages -->
+                <div id="alert-message" class="alert"></div>
+
+                <!-- Multi-step Form -->
+                <form id="onboarding-form">
+                    <!-- Step 1: Business Information -->
+                    <div class="form-step active" id="form-step-1">
+                        <h3>Step 1: Business Information</h3>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="businessName">Business Name *</label>
+                                <input type="text" id="businessName" name="businessName" required 
+                                       placeholder="Enter your business name">
+                            </div>
+                            <div class="form-group">
+                                <label for="ownerName">Your Name *</label>
+                                <input type="text" id="ownerName" name="ownerName" required 
+                                       placeholder="Enter your full name">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="email">Email Address *</label>
+                                <input type="email" id="email" name="email" required 
+                                       placeholder="your@email.com">
+                            </div>
+                            <div class="form-group">
+                                <label for="phone">Phone Number *</label>
+                                <input type="tel" id="phone" name="phone" required 
+                                       placeholder="+91 98765 43210">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="category">Business Category *</label>
+                                <select id="category" name="category" required>
+                                    <option value="">Select your industry</option>
+                                    <option value="healthcare">Healthcare & Medical</option>
+                                    <option value="insurance">Insurance & Financial</option>
+                                    <option value="technology">Technology & IT</option>
+                                    <option value="education">Education & Training</option>
+                                    <option value="consulting">Consulting & Professional</option>
+                                    <option value="services">Professional Services</option>
+                                    <option value="retail">Retail & E-commerce</option>
+                                    <option value="real-estate">Real Estate</option>
+                                    <option value="automotive">Automotive</option>
+                                    <option value="food">Food & Hospitality</option>
+                                    <option value="fitness">Fitness & Wellness</option>
+                                    <option value="beauty">Beauty & Personal Care</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="location">Location *</label>
+                                <input type="text" id="location" name="location" required 
+                                       placeholder="City, State">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="description">Business Description *</label>
+                            <textarea id="description" name="description" required 
+                                      placeholder="Describe what your business does and how you help customers..."></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: AI Enhancement -->
+                    <div class="form-step" id="form-step-2">
+                        <h3>Step 2: AI-Powered Content Creation</h3>
+                        <p>Help our AI create better content for your website:</p>
+
+                        <div class="form-group">
+                            <label for="targetAudience">Who are your ideal customers?</label>
+                            <input type="text" id="targetAudience" name="targetAudience" 
+                                   placeholder="e.g., Local families, Small businesses, Young professionals">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="uniqueValue">What makes you unique?</label>
+                            <input type="text" id="uniqueValue" name="uniqueValue" 
+                                   placeholder="e.g., 24/7 support, 15 years experience, certified experts">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="keyBenefits">Key benefits you provide</label>
+                            <input type="text" id="keyBenefits" name="keyBenefits" 
+                                   placeholder="e.g., Fast service, affordable rates, quality results">
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="problemSolved">What problem do you solve?</label>
+                                <input type="text" id="problemSolved" name="problemSolved" 
+                                       placeholder="e.g., Healthcare access, Insurance clarity">
+                            </div>
+                            <div class="form-group">
+                                <label for="yearsExperience">Years of Experience</label>
+                                <input type="number" id="yearsExperience" name="yearsExperience" 
+                                       placeholder="e.g., 5" min="0" max="50">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="whatsappNumber">WhatsApp Business Number</label>
+                            <input type="tel" id="whatsappNumber" name="whatsappNumber" 
+                                   placeholder="+91 98765 43210 (optional)">
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="showWhatsApp" name="showWhatsApp" value="true">
+                                <label for="showWhatsApp">Show WhatsApp widget on website</label>
+                            </div>
+                        </div>
+
+                        <!-- AI Content Preview -->
+                        <div id="ai-content-preview" class="ai-content-preview">
+                            <h4>AI Generated Preview:</h4>
+                            <div class="preview-item">
+                                <h4>Tagline:</h4>
+                                <p id="preview-tagline">Your tagline will appear here...</p>
+                            </div>
+                            <div class="preview-item">
+                                <h4>Hero Message:</h4>
+                                <p id="preview-hero">Your hero message will appear here...</p>
+                            </div>
+                        </div>
+
+                        <button type="button" id="generate-preview" class="btn btn-secondary">
+                            <span class="btn-text">Generate AI Preview</span>
+                            <div class="loading-spinner"></div>
+                        </button>
+                    </div>
+
+                    <!-- Step 3: Plan Selection -->
+                    <div class="form-step" id="form-step-3">
+                        <h3>Step 3: Choose Your Plan</h3>
+                        
+                        <div class="pricing-cards">
+                            <div class="pricing-card selected" data-plan="starter" data-price="499">
+                                <h3>Starter Plan</h3>
+                                <div class="price">
+                                    <span class="currency">₹</span>499
+                                    <small>/month</small>
+                                </div>
+                                <ul class="features-list">
+                                    <li>Professional Website</li>
+                                    <li>AI Content Generation</li>
+                                    <li>WhatsApp Integration</li>
+                                    <li>Mobile Responsive</li>
+                                    <li>Basic Analytics</li>
+                                    <li>Email Support</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="agree-terms" required>
+                                <label for="agree-terms">
+                                    I agree to the <a href="#" target="_blank">Terms of Service</a> and 
+                                    <a href="#" target="_blank">Privacy Policy</a>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="alert info" style="display: block;">
+                            <strong>7-Day Free Trial:</strong> Start your free trial now. No charges until after your trial period.
+                        </div>
+                    </div>
+
+                    <!-- Navigation Buttons -->
+                    <div class="form-buttons">
+                        <button type="button" id="prev-btn" class="btn btn-secondary" style="display: none;">
+                            Previous
+                        </button>
+                        <button type="button" id="next-btn" class="btn btn-primary">
+                            Next Step
+                        </button>
+                        <button type="submit" id="submit-btn" class="btn btn-primary btn-full" style="display: none;">
+                            <span class="btn-text">Start My Free Trial</span>
+                            <div class="loading-spinner"></div>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>&copy; 2024 Thrivoy. All rights reserved. | 
+               <a href="mailto:support@thrivoy.com">Support</a> | 
+               <a href="https://wa.me/917892159170">WhatsApp Help</a>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        const CONFIG = {
+            // Replace with your Apps Script web app URL
+            API_URL: 'https://script.google.com/macros/s/AKfycbxVI8GIafUhHTOHv2pDTiT42820sEFyJlgSEeGYTdmGG9PpDOiqbFQA_ivZf_PzAzO0/exec',
+            DEBUG: true
+        };
+
+        // State management
+        let currentStep = 1;
+        let totalSteps = 3;
+        let isSubmitting = false;
+
+        // Initialize the form
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeForm();
+            setupEventListeners();
+        });
+
+        function initializeForm() {
+            updateStepDisplay();
+            
+            // Auto-detect location if geolocation is available
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    // You could use a geocoding service here
+                    console.log('Location detected:', position.coords);
+                });
+            }
+        }
+
+        function setupEventListeners() {
+            // Navigation buttons
+            document.getElementById('next-btn').addEventListener('click', nextStep);
+            document.getElementById('prev-btn').addEventListener('click', prevStep);
+            document.getElementById('submit-btn').addEventListener('click', submitForm);
+
+            // Form validation on input
+            const inputs = document.querySelectorAll('input[required], select[required], textarea[required]');
+            inputs.forEach(input => {
+                input.addEventListener('blur', validateField);
+                input.addEventListener('input', clearFieldError);
+            });
+
+            // AI Preview generation
+            document.getElementById('generate-preview').addEventListener('click', generateAIPreview);
+
+            // Plan selection
+            document.querySelectorAll('.pricing-card').forEach(card => {
+                card.addEventListener('click', selectPlan);
+            });
+
+            // Auto-populate WhatsApp number from phone
+            document.getElementById('phone').addEventListener('blur', function() {
+                const whatsappField = document.getElementById('whatsappNumber');
+                if (!whatsappField.value && this.value) {
+                    whatsappField.value = this.value;
+                }
+            });
+        }
+
+        function nextStep() {
+            if (validateCurrentStep()) {
+                if (currentStep < totalSteps) {
+                    currentStep++;
+                    updateStepDisplay();
+                    
+                    // Auto-generate AI preview when entering step 2
+                    if (currentStep === 2) {
+                        setTimeout(generateAIPreview, 500);
+                    }
+                }
+            }
+        }
+
+        function prevStep() {
+            if (currentStep > 1) {
+                currentStep--;
+                updateStepDisplay();
+            }
+        }
+
+        function updateStepDisplay() {
+            // Update step indicators
+            for (let i = 1; i <= totalSteps; i++) {
+                const stepElement = document.getElementById(`step-${i}`);
+                const formStep = document.getElementById(`form-step-${i}`);
+                
+                stepElement.classList.remove('active', 'completed');
+                formStep.classList.remove('active');
+                
+                if (i < currentStep) {
+                    stepElement.classList.add('completed');
+                } else if (i === currentStep) {
+                    stepElement.classList.add('active');
+                    formStep.classList.add('active');
+                }
+            }
+
+            // Update buttons
+            const prevBtn = document.getElementById('prev-btn');
+            const nextBtn = document.getElementById('next-btn');
+            const submitBtn = document.getElementById('submit-btn');
+
+            prevBtn.style.display = currentStep > 1 ? 'block' : 'none';
+            
+            if (currentStep === totalSteps) {
+                nextBtn.style.display = 'none';
+                submitBtn.style.display = 'block';
+            } else {
+                nextBtn.style.display = 'block';
+                submitBtn.style.display = 'none';
+            }
+
+            // Scroll to top of form
+            document.querySelector('.main-card').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function validateCurrentStep() {
+            const currentStepElement = document.getElementById(`form-step-${currentStep}`);
+            const requiredFields = currentStepElement.querySelectorAll('input[required], select[required], textarea[required]');
+            let isValid = true;
+
+            requiredFields.forEach(field => {
+                if (!validateField({ target: field })) {
+                    isValid = false;
+                }
+            });
+
+            return isValid;
+        }
+
+        function validateField(event) {
+            const field = event.target;
+            const value = field.value.trim();
+            let isValid = true;
+            let errorMessage = '';
+
+            // Clear previous errors
+            clearFieldError({ target: field });
+
+            // Required field validation
+            if (field.hasAttribute('required') && !value) {
+                errorMessage = 'This field is required';
+                isValid = false;
+            }
+
+            // Email validation
+            if (field.type === 'email' && value) {
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(value)) {
+                    errorMessage = 'Please enter a valid email address';
+                    isValid = false;
+                }
+            }
+
+            // Phone validation
+            if ((field.id === 'phone' || field.id === 'whatsappNumber') && value) {
+                const phoneRegex = /^[\+]?[\d\s\-\(\)]{10,}$/;
+                if (!phoneRegex.test(value)) {
+                    errorMessage = 'Please enter a valid phone number';
+                    isValid = false;
+                }
+            }
+
+            // Show error if invalid
+            if (!isValid) {
+                showFieldError(field, errorMessage);
+            }
+
+            return isValid;
+        }
+
+        function showFieldError(field, message) {
+            field.style.borderColor = 'var(--danger-color)';
+            
+            // Create error message if it doesn't exist
+            let errorElement = field.parentNode.querySelector('.field-error');
+            if (!errorElement) {
+                errorElement = document.createElement('div');
+                errorElement.className = 'field-error';
+                errorElement.style.color = 'var(--danger-color)';
+                errorElement.style.fontSize = '14px';
+                errorElement.style.marginTop = '4px';
+                field.parentNode.appendChild(errorElement);
+            }
+            errorElement.textContent = message;
+        }
+
+        function clearFieldError(event) {
+            const field = event.target;
+            field.style.borderColor = '';
+            
+            const errorElement = field.parentNode.querySelector('.field-error');
+            if (errorElement) {
+                errorElement.remove();
+            }
+        }
+
+        function selectPlan(event) {
+            // Remove selection from all cards
+            document.querySelectorAll('.pricing-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            
+            // Add selection to clicked card
+            event.currentTarget.classList.add('selected');
+        }
+
+        async function generateAIPreview() {
+            const button = document.getElementById('generate-preview');
+            const spinner = button.querySelector('.loading-spinner');
+            const btnText = button.querySelector('.btn-text');
+            const preview = document.getElementById('ai-content-preview');
+            
+            // Show loading state
+            button.disabled = true;
+            spinner.style.display = 'inline-block';
+            btnText.textContent = 'Generating...';
+
+            try {
+                const formData = getFormData();
+                
+                // Make CORS-friendly request to your Apps Script
+                const response = await makeAPIRequest('generateTagline', formData);
+                
+                if (response.success && response.taglines) {
+                    document.getElementById('preview-tagline').textContent = response.taglines[0] || response.tagline;
+                    document.getElementById('preview-hero').textContent = `Welcome to ${formData.businessName} - ${response.taglines[0] || 'Your trusted partner'}`;
+                    preview.classList.add('show');
+                } else {
+                    throw new Error(response.error || 'Failed to generate preview');
+                }
+                
+            } catch (error) {
+                console.error('AI Preview Error:', error);
+                showAlert('Unable to generate AI preview. You can continue with the signup.', 'error');
+            } finally {
+                // Reset button state
+                button.disabled = false;
+                spinner.style.display = 'none';
+                btnText.textContent = 'Generate AI Preview';
+            }
+        }
+
+        async function submitForm(event) {
+            event.preventDefault();
+            
+            if (isSubmitting) return;
+            
+            // Final validation
+            if (!validateCurrentStep()) {
+                showAlert('Please fill in all required fields.', 'error');
+                return;
+            }
+
+            const submitBtn = document.getElementById('submit-btn');
+            const spinner = submitBtn.querySelector('.loading-spinner');
+            const btnText = submitBtn.querySelector('.btn-text');
+            
+            isSubmitting = true;
+            submitBtn.disabled = true;
+            spinner.style.display = 'inline-block';
+            btnText.textContent = 'Creating Your Website...';
+
+            try {
+                const formData = getFormData();
+                
+                // Add selected plan info
+                const selectedPlan = document.querySelector('.pricing-card.selected');
+                formData.plan = selectedPlan.dataset.plan;
+                formData.price = selectedPlan.dataset.price;
+                formData.action = 'onboard';
+
+                logEvent('form_submit_attempt', formData.businessName);
+
+                const response = await makeAPIRequest('onboard', formData);
+                
+                if (response.success) {
+                    logEvent('form_submit_success', formData.businessName);
+                    handleSuccessfulSubmission(response);
+                } else {
+                    throw new Error(response.error || 'Submission failed');
+                }
+                
+            } catch (error) {
+                console.error('Submission Error:', error);
+                logEvent('form_submit_error', formData.businessName, { error: error.message });
+                showAlert(`Unable to create your website: ${error.message}. Please try again or contact support.`, 'error');
+            } finally {
+                isSubmitting = false;
+                submitBtn.disabled = false;
+                spinner.style.display = 'none';
+                btnText.textContent = 'Start My Free Trial';
+            }
+        }
+
+        function getFormData() {
+            const form = document.getElementById('onboarding-form');
+            const formData = new FormData(form);
+            const data = {};
+            
+            // Convert FormData to regular object
+            for (let [key, value] of formData.entries()) {
+                data[key] = value;
+            }
+            
+            // Handle checkboxes that weren't checked
+            data.showWhatsApp = document.getElementById('showWhatsApp').checked;
+            
+            return data;
+        }
+
+        function handleSuccessfulSubmission(response) {
+            // Hide form and show success message
+            document.getElementById('onboarding-form').style.display = 'none';
+            
+            const successHtml = `
+                <div style="text-align: center; padding: 40px;">
+                    <div style="font-size: 48px; color: var(--accent-color); margin-bottom: 20px;">✅</div>
+                    <h2 style="color: var(--accent-color); margin-bottom: 20px;">Welcome to Thrivoy!</h2>
+                    <p style="font-size: 18px; margin-bottom: 30px;">Your professional website is being created and will be live shortly.</p>
+                    
+                    <div style="background: var(--section-bg); padding: 20px; border-radius: 8px; margin: 20px 0;">
+                        <h3>What happens next?</h3>
+                        <ul style="text-align: left; max-width: 400px; margin: 0 auto;">
+                            <li>Your website will be live in 2-3 minutes</li>
+                            <li>You'll receive a welcome email with all details</li>
+                            <li>Your 7-day free trial starts now</li>
+                            <li>We'll send you the payment link via email</li>
+                        </ul>
+                    </div>
+                    
+                    <div style="display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; margin-top: 30px;">
+                        ${response.websiteUrl ? `<a href="${response.websiteUrl}" target="_blank" class="btn btn-primary">View Your Website</a>` : ''}
+                        ${response.dashboardUrl ? `<a href="${response.dashboardUrl}" target="_blank" class="btn btn-secondary">Access Dashboard</a>` : ''}
+                        ${response.thankYouUrl ? `<a href="${response.thankYouUrl}" target="_blank" class="btn btn-secondary">Thank You Page</a>` : ''}
+                    </div>
+                    
+                    <div style="margin-top: 30px; padding: 20px; background: #e8f4fd; border-radius: 8px;">
+                        <h4>Need Help?</h4>
+                        <p>Contact us on <a href="https://wa.me/917892159170" target="_blank">WhatsApp</a> or email <a href="mailto:support@thrivoy.com">support@thrivoy.com</a></p>
+                    </div>
+                </div>
+            `;
+            
+            document.querySelector('.form-container').innerHTML = successHtml;
+            
+            // Redirect to website after delay if URL provided
+            if (response.websiteUrl) {
+                setTimeout(() => {
+                    window.open(response.websiteUrl, '_blank');
+                }, 3000);
+            }
+        }
+
+        // CORS-friendly API request handler
+        async function makeAPIRequest(action, data) {
+            const requestData = { ...data, action };
+            
+            try {
+                // Method 1: Try JSONP first (most reliable for Apps Script)
+                if (window.fetch) {
+                    return await makeJSONPRequest(action, requestData);
+                }
+                
+                // Fallback to fetch if JSONP fails
+                return await makeFetchRequest(requestData);
+                
+            } catch (error) {
+                console.error('API Request failed:', error);
+                throw error;
+            }
+        }
+
+        // JSONP implementation to avoid CORS issues
+        function makeJSONPRequest(action, data) {
+            return new Promise((resolve, reject) => {
+                const callbackName = 'thrivoyCallback' + Date.now() + Math.random().toString(36).substr(2, 9);
+                const timeout = setTimeout(() => {
+                    cleanup();
+                    reject(new Error('Request timeout'));
+                }, 30000);
+                
+                // Create callback function
+                window[callbackName] = function(response) {
+                    cleanup();
+                    resolve(response);
+                };
+                
+                // Create script element
+                const script = document.createElement('script');
+                const params = new URLSearchParams({ ...data, callback: callbackName });
+                script.src = `${CONFIG.API_URL}?${params.toString()}`;
+                
+                script.onerror = function() {
+                    cleanup();
+                    reject(new Error('Network error'));
+                };
+                
+                // Cleanup function
+                function cleanup() {
+                    clearTimeout(timeout);
+                    if (window[callbackName]) {
+                        delete window[callbackName];
+                    }
+                    if (script.parentNode) {
+                        script.parentNode.removeChild(script);
+                    }
+                }
+                
+                document.head.appendChild(script);
+            });
+        }
+
+        // Fetch fallback (with proper error handling)
+        async function makeFetchRequest(data) {
+            const response = await fetch(CONFIG.API_URL, {
+                method: 'POST',
+                mode: 'cors',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            });
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            return await response.json();
+        }
+
+        function showAlert(message, type = 'info') {
+            const alertElement = document.getElementById('alert-message');
+            alertElement.className = `alert ${type}`;
+            alertElement.innerHTML = message;
+            alertElement.style.display = 'block';
+            
+            // Scroll to alert
+            alertElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            
+            // Auto-hide success messages
+            if (type === 'success') {
+                setTimeout(() => {
+                    alertElement.style.display = 'none';
+                }, 5000);
+            }
+        }
+
+        function hideAlert() {
+            document.getElementById('alert-message').style.display = 'none';
+        }
+
+        // Analytics and logging
+        function logEvent(eventName, businessName = '', extraData = {}) {
+            if (!CONFIG.DEBUG) return;
+            
+            const eventData = {
+                event: eventName,
+                timestamp: new Date().toISOString(),
+                userAgent: navigator.userAgent,
+                url: window.location.href,
+                businessName: businessName,
+                ...extraData
+            };
+            
+            console.log('Event logged:', eventData);
+            
+            // Send to backend for tracking (non-blocking)
+            makeAPIRequest('log', {
+                action: 'log',
+                ...eventData
+            }).catch(error => {
+                console.log('Logging failed (non-critical):', error.message);
+            });
+        }
+
+        // Page visibility and exit intent tracking
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden) {
+                logEvent('page_hidden', '', { step: currentStep });
+            } else {
+                logEvent('page_visible', '', { step: currentStep });
+            }
+        });
+
+        // Form abandon tracking
+        let formStarted = false;
+        document.getElementById('businessName').addEventListener('input', function() {
+            if (!formStarted) {
+                formStarted = true;
+                logEvent('form_started');
+            }
+        });
+
+        window.addEventListener('beforeunload', function(event) {
+            if (formStarted && !isSubmitting) {
+                logEvent('form_abandoned', '', { step: currentStep });
+            }
+        });
+
+        // Field completion tracking
+        const trackableFields = ['businessName', 'email', 'phone', 'category'];
+        trackableFields.forEach(fieldId => {
+            const field = document.getElementById(fieldId);
+            if (field) {
+                field.addEventListener('blur', function() {
+                    if (this.value.trim()) {
+                        logEvent('field_completed', '', { field: fieldId, step: currentStep });
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>
