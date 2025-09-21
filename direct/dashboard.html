@@ -695,7 +695,7 @@
                 showLoadingScreen(true);
                 
                 // Fetch dashboard data
-                dashboardData = await makeAPIRequest('getDashboard', { businessId });
+                dashboardData = await makeAPIRequest('getDashboardData', { businessId });
                 
                 if (dashboardData.success) {
                     businessData = dashboardData.business;
