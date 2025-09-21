@@ -1011,38 +1011,141 @@ document.addEventListener('DOMContentLoaded', async function() {
 
         async function generatePaymentLink() {
             try {
+                // Check authentication first
+                if (!auth.isAuthenticated()) {
+                    showAlert('Please login to generate payment link', 'danger');
+                    auth.redirectToLogin();
+                    return;
+                }
+        
+                // Show loading state
                 showAlert('Generating payment link...', 'info');
                 
-                const response = await makeAPIRequest('createPaymentInvoice', {
-                    businessId: businessId,
+                // Get payment button and show loading state
+                const paymentButtons = document.querySelectorAll('button[onclick="generatePaymentLink()"]');
+                paymentButtons.forEach(btn => {
+                    btn.disabled = true;
+                    btn.innerHTML = '⏳ Generating...';
+                });
+        
+                // Make authenticated API request
+                const response = await auth.makeAPIRequest('createPaymentInvoice', {
                     amount: 499
                 });
                 
                 if (response.success && response.invoice) {
                     const invoice = response.invoice;
                     
-                    // Show QR code if available
-                    if (invoice.qrCodeUrl) {
-                        const qrContainer = document.getElementById('payment-qr-container');
-                        const qrImage = document.getElementById('payment-qr');
-                        qrImage.src = invoice.qrCodeUrl;
-                        qrContainer.style.display = 'block';
+                    // Update payment section with invoice details
+                    const paymentSection = document.getElementById('payment-section');
+                    if (paymentSection) {
+                        paymentSection.style.display = 'block';
+                        
+                        // Show QR code if available
+                        if (invoice.qrCodeUrl || invoice.upiQrImage) {
+                            const qrContainer = document.getElementById('payment-qr-container');
+                            const qrImage = document.getElementById('payment-qr');
+                            
+                            if (qrContainer && qrImage) {
+                                qrImage.src = invoice.qrCodeUrl || invoice.upiQrImage;
+                                qrImage.alt = 'UPI Payment QR Code - Scan to pay ₹499';
+                                qrContainer.style.display = 'block';
+                                
+                                // Add click handler to QR image for mobile users
+                                qrImage.onclick = function() {
+                                    if (invoice.upiDeepLink && /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+                                        window.open(invoice.upiDeepLink, '_blank');
+                                    }
+                                };
+                                qrImage.style.cursor = 'pointer';
+                                qrImage.title = 'Click to open UPI app (mobile only)';
+                            }
+                        }
+                        
+                        // Update payment section content
+                        const existingContent = paymentSection.innerHTML;
+                        paymentSection.innerHTML = `
+                            <h3>💳 Payment Ready!</h3>
+                            <p><strong>Amount: ₹${invoice.amount || '499'}</strong></p>
+                            <p>Invoice ID: <code>${invoice.invoiceId}</code></p>
+                            
+                            ${invoice.qrCodeUrl || invoice.upiQrImage ? `
+                                <div class="payment-qr" style="margin: 20px auto; text-align: center;">
+                                    <p><strong>Scan QR Code to Pay:</strong></p>
+                                    <img src="${invoice.qrCodeUrl || invoice.upiQrImage}" 
+                                         alt="UPI Payment QR Code" 
+                                         style="max-width: 200px; height: auto; border: 1px solid #ddd; border-radius: 8px; background: white; padding: 10px; cursor: pointer;"
+                                         onclick="if(/Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) && '${invoice.upiDeepLink}') window.open('${invoice.upiDeepLink}', '_blank');"
+                                         title="Click to open UPI app (mobile only)">
+                                </div>
+                            ` : ''}
+                            
+                            <div style="display: flex; gap: 15px; justify-content: center; margin-top: 20px; flex-wrap: wrap;">
+                                ${invoice.upiDeepLink ? `
+                                    <a href="${invoice.upiDeepLink}" 
+                                       class="btn btn-warning" 
+                                       target="_blank"
+                                       style="text-decoration: none; min-width: 200px;">
+                                        💳 Pay Now via UPI
+                                    </a>
+                                ` : ''}
+                                
+                                <button class="btn btn-secondary" onclick="copyPaymentDetails('${invoice.invoiceId}', '${invoice.amount || '499'}')">
+                                    📋 Copy Details
+                                </button>
+                                
+                                <a class="btn btn-secondary" 
+                                   href="https://wa.me/917892159170?text=${encodeURIComponent(`Hi! I need help with payment for Invoice: ${invoice.invoiceId}`)}" 
+                                   target="_blank"
+                                   style="text-decoration: none;">
+                                    💬 Contact Support
+                                </a>
+                            </div>
+                            
+                            <div style="background: #e3f2fd; padding: 15px; border-radius: 8px; margin: 20px 0; font-size: 14px; text-align: center;">
+                                <p><strong>Payment Instructions:</strong></p>
+                                <ul style="text-align: left; margin: 10px 0; padding-left: 20px; display: inline-block;">
+                                    <li><strong>Mobile:</strong> Tap "Pay Now via UPI" or scan QR code</li>
+                                    <li><strong>Desktop:</strong> Scan QR code with any UPI app</li>
+                                    <li><strong>Manual:</strong> Use UPI ID: ${getProp_('UPI_ID') || 'Contact support'}</li>
+                                </ul>
+                                <p style="margin-top: 15px; color: #666;">
+                                    <strong>Keep this reference:</strong> ${invoice.invoiceId}<br>
+                                    Payment will be verified automatically within 5-10 minutes.
+                                </p>
+                            </div>
+                        `;
                     }
                     
-                    // Show UPI link if available
-                    if (invoice.upiDeepLink) {
-                        showAlert(`
-                            <div>
-                                <strong>Payment Ready!</strong><br>
-                                <a href="${invoice.upiDeepLink}" target="_blank" style="color: inherit; text-decoration: underline;">
-                                    Click here to pay via UPI (₹499)
-                                </a><br>
-                                <small>Or scan the QR code above</small>
-                            </div>
-                        `, 'success');
-                    } else {
-                        showAlert('Payment invoice created. Check your email for payment instructions.', 'success');
+                    // Show success message with action buttons
+                    showAlert(`
+                        <div style="text-align: center;">
+                            <strong>✅ Payment Link Generated!</strong><br>
+                            <span style="font-size: 0.9rem;">
+                                ${invoice.upiDeepLink ? 'Click "Pay Now via UPI" below or scan the QR code' : 'Check your email for payment instructions'}
+                            </span>
+                        </div>
+                    `, 'success');
+                    
+                    // Log successful payment link generation
+                    if (window.ThrivoyAPI) {
+                        window.ThrivoyAPI.request('log', {
+                            event: 'payment_link_generated',
+                            businessId: businessId,
+                            invoiceId: invoice.invoiceId,
+                            amount: invoice.amount
+                        }).catch(() => {
+                            // Silent fail for logging
+                        });
                     }
+                    
+                    // Auto-scroll to payment section
+                    setTimeout(() => {
+                        paymentSection.scrollIntoView({ 
+                            behavior: 'smooth', 
+                            block: 'center' 
+                        });
+                    }, 500);
                     
                 } else {
                     throw new Error(response.error || 'Failed to create payment link');
@@ -1050,10 +1153,102 @@ document.addEventListener('DOMContentLoaded', async function() {
                 
             } catch (error) {
                 console.error('Payment link generation failed:', error);
-                showAlert(`Failed to create payment link: ${error.message}`, 'danger');
+                
+                // Handle specific error types
+                if (error.message.includes('Authentication')) {
+                    showAlert('Session expired. Please login again.', 'danger');
+                    auth.logout();
+                } else if (error.message.includes('Rate limit')) {
+                    showAlert('Too many requests. Please wait a moment and try again.', 'warning');
+                } else {
+                    showAlert(`Failed to create payment link: ${error.message}. Please try again or contact support.`, 'danger');
+                }
+                
+                // Log error
+                if (window.ThrivoyAPI) {
+                    window.ThrivoyAPI.request('log', {
+                        event: 'payment_link_error',
+                        businessId: businessId,
+                        error: error.message
+                    }).catch(() => {
+                        // Silent fail for logging
+                    });
+                }
+                
+            } finally {
+                // Reset button states
+                const paymentButtons = document.querySelectorAll('button[onclick="generatePaymentLink()"]');
+                paymentButtons.forEach(btn => {
+                    btn.disabled = false;
+                    btn.innerHTML = '💳 Pay Now (₹499/month)';
+                });
             }
         }
-
+        
+        // Helper function to copy payment details to clipboard
+        function copyPaymentDetails(invoiceId, amount) {
+            const details = `Thrivoy Payment Details:
+        Invoice ID: ${invoiceId}
+        Amount: ₹${amount}
+        UPI ID: ${getProp_('UPI_ID') || 'Contact support for UPI ID'}
+        
+        Pay using any UPI app and keep this invoice ID for reference.`;
+        
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(details).then(() => {
+                    showAlert('Payment details copied to clipboard!', 'success');
+                }).catch(() => {
+                    showPaymentDetailsModal(details);
+                });
+            } else {
+                showPaymentDetailsModal(details);
+            }
+        }
+        
+        // Helper function to show payment details in a modal
+        function showPaymentDetailsModal(details) {
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+                background: rgba(0,0,0,0.5); display: flex; align-items: center; 
+                justify-content: center; z-index: 10000; padding: 20px;
+            `;
+            
+            modal.innerHTML = `
+                <div style="background: white; padding: 30px; border-radius: 12px; max-width: 500px; width: 100%;">
+                    <h3 style="margin-bottom: 20px; text-align: center;">Payment Details</h3>
+                    <textarea readonly style="width: 100%; height: 150px; padding: 15px; border: 1px solid #ddd; border-radius: 6px; font-family: monospace; font-size: 14px;" onclick="this.select()">${details}</textarea>
+                    <div style="display: flex; gap: 10px; justify-content: center; margin-top: 20px;">
+                        <button onclick="this.closest('div').parentNode.remove()" 
+                                style="padding: 10px 20px; border: 1px solid #ddd; background: white; border-radius: 6px; cursor: pointer;">
+                            Close
+                        </button>
+                        <button onclick="this.previousElementSibling.previousElementSibling.select(); document.execCommand('copy'); alert('Copied!'); this.closest('div').parentNode.remove();" 
+                                style="padding: 10px 20px; border: none; background: var(--primary-color, #1166EE); color: white; border-radius: 6px; cursor: pointer;">
+                            Copy Details
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            // Close on outside click
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    modal.remove();
+                }
+            });
+        }
+        
+        // Helper function to get property value (for UPI ID display)
+        function getProp_(key) {
+            // This is a placeholder - in production, sensitive data shouldn't be exposed to frontend
+            const publicProps = {
+                'UPI_ID': 'Contact support for UPI ID'
+            };
+            return publicProps[key] || 'Not available';
+        }
         function shareWebsite() {
             if (!dashboardData.websiteUrl) {
                 showAlert('Website URL not available', 'warning');
