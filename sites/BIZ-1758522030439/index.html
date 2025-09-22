@@ -1,0 +1,65 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="Seagnu Consulting is a Chennai-based IT services company specializing in open source solutions for Micro, Small, and Medium Enterprises (MSMEs). We understand t"><title>Seagnu Consulting - Open Source. Business Solutions. Chennai Made.</title><link rel="stylesheet" href="./styles.css"></head><body><header class="site-header"><div class="container"><nav class="navbar"><div class="nav-brand"><h1 class="site-title">Seagnu Consulting</h1><p class="site-tagline">Open Source. Business Solutions. Chennai Made.</p></div><div class="nav-links"><a href="#about">About</a><a href="#contact">Contact</a></div></nav></div></header><section class="hero-section"><div class="container"><div class="hero-content"><h2 class="hero-title">Seagnu Consulting delivers affordable, high-quality digital transformation solutions built on open source, driving real business value for Chennai's SMEs.</h2><p class="hero-description">Seagnu Consulting is a Chennai-based IT services company specializing in open source solutions for Micro, Small, and Medium Enterprises (MSMEs).</p><p class="hero-location">📍 Chennai, Tamilnadu</p><div class="hero-actions"><a href="#" id="hero-contact-btn" class="btn btn-primary">Get Started Today</a><a href="#about" class="btn btn-secondary">Learn More</a></div></div></div></section><section id="about" class="about-section"><div class="container"><h2>About Seagnu Consulting</h2><div class="about-content"><div class="about-text"><p>Seagnu Consulting is a Chennai-based IT services company specializing in open source solutions for Micro, Small, and Medium Enterprises (MSMEs). We understand the unique challenges faced by businesses in Tamil Nadu and offer tailored digital transformation strategies that deliver tangible results. Our deep domain expertise, combined with our focus on open source technologies, allows us to provide cost-effective solutions without compromising on quality. Unlike traditional IT providers, we bring not just technology, but also strategic insight and innovative thinking to the table. We help you leverage the power of open source to reduce costs, improve efficiency, and gain a competitive edge. Partner with Seagnu Consulting and experience the difference of a truly collaborative and value-driven approach to IT.</p></div></div></div></section><section id="contact" class="contact-section"><div class="container"><h2>Get In Touch</h2><div class="contact-content"><div class="contact-info"><h3>Contact Information</h3><p><strong>Contact Person:</strong> Vedhika</p><p><strong>Email:</strong> <a href="mailto:periafmalayappa@gmail.com">periafmalayappa@gmail.com</a></p><p><strong>Phone:</strong> <a href="tel:919092008720">919092008720</a></p><p><strong>Location:</strong> Chennai, Tamilnadu</p></div></div></div></section><footer class="site-footer"><div class="container"><div class="footer-content"><div class="footer-section"><h4>Seagnu Consulting</h4><p>Open Source. Business Solutions. Chennai Made.</p></div></div><div class="footer-bottom"><p>&copy; 2025 Seagnu Consulting. All rights reserved.</p><p>Powered by <a href="https://thrivoy.com" target="_blank">Thrivoy</a> - AI-powered websites</p></div></div></footer><script>window.THRIVOY_CONFIG = {clientWA: "919092008720",businessId: "BIZ-1758522030439",siteName: "Seagnu Consulting",ownerName: "Vedhika",showWhatsApp: true};</script>
+<div class="wh-widget">
+  <a id="wh_client_btn" class="wh-btn" href="#" aria-label="Message us on WhatsApp" style="display: none;">
+    <span class="wh-mini">💬</span>
+    <span class="wh-label">Chat with us</span>
+  </a>
+  <a id="wh_support_btn" class="wh-small" href="#" aria-label="Contact Thrivoy support">
+    Thrivoy Support
+  </a>
+</div>
+
+<script>
+(function() {
+  'use strict';
+  
+  var config = window.THRIVOY_CONFIG || {};
+  var support = "917892159170";
+  var client = (config.clientWA || "").replace(/\D/g, "");
+  var siteName = config.siteName || document.title || "this business";
+  var currentPage = location.href;
+  
+  function createWhatsAppUrl(number, message) {
+    if (!number || number.length < 10) return '#';
+    var cleanNumber = number.replace(/[^\d]/g, '');
+    var encodedMessage = message ? encodeURIComponent(message) : '';
+    return "https://wa.me/" + cleanNumber + (encodedMessage ? "?text=" + encodedMessage : "");
+  }
+  
+  function logWhatsAppClick(type, number) {
+    try {
+      // Optional: Send analytics to your backend
+      console.log('WhatsApp click:', type, number);
+    } catch (e) {
+      // Silent fail for logging
+    }
+  }
+  
+  // Setup client WhatsApp button
+  var clientBtn = document.getElementById('wh_client_btn');
+  var supportBtn = document.getElementById('wh_support_btn');
+  
+  if (client && client.length >= 10 && config.showWhatsApp) {
+    var clientMessage = "Hi " + siteName + "! I found your website (" + currentPage + ") and would like to know more about your services.";
+    clientBtn.href = createWhatsAppUrl(client, clientMessage);
+    clientBtn.style.display = 'flex';
+    
+    clientBtn.addEventListener('click', function(e) {
+      logWhatsAppClick('client', client);
+    });
+  }
+  
+  // Setup support button
+  if (support) {
+    var supportMessage = "Hi Thrivoy! I need help with " + siteName + " (" + currentPage + ")";
+    supportBtn.href = createWhatsAppUrl(support, supportMessage);
+    
+    supportBtn.addEventListener('click', function(e) {
+      logWhatsAppClick('support', support);
+    });
+  } else {
+    supportBtn.style.display = 'none';
+  }
+})();
+</script>
+</body></html>
