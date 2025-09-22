@@ -381,6 +381,24 @@
             text-decoration: underline;
         }
 
+        /* Field error styles */
+        .form-group.error input,
+        .form-group.error select,
+        .form-group.error textarea {
+            border-color: var(--danger-color);
+        }
+
+        .error-message {
+            color: var(--danger-color);
+            font-size: 14px;
+            margin-top: 4px;
+            display: none;
+        }
+
+        .form-group.error .error-message {
+            display: block;
+        }
+
         @media (max-width: 768px) {
             .container {
                 padding: 0 15px;
@@ -449,11 +467,13 @@
                                 <label for="businessName">Business Name *</label>
                                 <input type="text" id="businessName" name="businessName" required 
                                        placeholder="Enter your business name">
+                                <div class="error-message"></div>
                             </div>
                             <div class="form-group">
                                 <label for="ownerName">Your Name *</label>
                                 <input type="text" id="ownerName" name="ownerName" required 
                                        placeholder="Enter your full name">
+                                <div class="error-message"></div>
                             </div>
                         </div>
 
@@ -462,11 +482,13 @@
                                 <label for="email">Email Address *</label>
                                 <input type="email" id="email" name="email" required 
                                        placeholder="your@email.com">
+                                <div class="error-message"></div>
                             </div>
                             <div class="form-group">
                                 <label for="phone">Phone Number *</label>
                                 <input type="tel" id="phone" name="phone" required 
                                        placeholder="+91 98765 43210">
+                                <div class="error-message"></div>
                             </div>
                         </div>
 
@@ -489,11 +511,13 @@
                                     <option value="beauty">Beauty & Personal Care</option>
                                     <option value="other">Other</option>
                                 </select>
+                                <div class="error-message"></div>
                             </div>
                             <div class="form-group">
                                 <label for="location">Location *</label>
                                 <input type="text" id="location" name="location" required 
                                        placeholder="City, State">
+                                <div class="error-message"></div>
                             </div>
                         </div>
 
@@ -501,6 +525,7 @@
                             <label for="description">Business Description *</label>
                             <textarea id="description" name="description" required 
                                       placeholder="Describe what your business does and how you help customers..."></textarea>
+                            <div class="error-message"></div>
                         </div>
                     </div>
 
@@ -661,9 +686,11 @@
             // Store authentication data after successful signup
             storeAuthData(authData) {
                 if (authData.token && authData.businessId && authData.expires) {
-                    localStorage.setItem('thrivoy_token', authData.token);
-                    localStorage.setItem('thrivoy_business_id', authData.businessId);
-                    localStorage.setItem('thrivoy_token_expires', authData.expires);
+                    if (hasStorage) {
+                        localStorage.setItem('thrivoy_token', authData.token);
+                        localStorage.setItem('thrivoy_business_id', authData.businessId);
+                        localStorage.setItem('thrivoy_token_expires', authData.expires);
+                    }
                     return true;
                 }
                 return false;
@@ -671,9 +698,11 @@
 
             // Clear any existing auth data (in case of re-signup)
             clearAuthData() {
-                localStorage.removeItem('thrivoy_token');
-                localStorage.removeItem('thrivoy_business_id');
-                localStorage.removeItem('thrivoy_token_expires');
+                if (hasStorage) {
+                    localStorage.removeItem('thrivoy_token');
+                    localStorage.removeItem('thrivoy_business_id');
+                    localStorage.removeItem('thrivoy_token_expires');
+                }
             }
 
             // Generate login URL with business ID
@@ -694,10 +723,6 @@
 
         // Initialize authentication manager
         const auth = new ThrivoyAuth();
-        
-        // =============================================================================
-        // ONBOARDING APPLICATION
-        // =============================================================================
 
         // Configuration
         const CONFIG = {
@@ -711,29 +736,49 @@
         let totalSteps = 3;
         let isSubmitting = false;
 
-        // Initialize the form
+        // Initialize the form when DOM loads
         document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded, initializing form...');
             initializeForm();
             setupEventListeners();
         });
 
         function initializeForm() {
+            console.log('Initializing form');
             updateStepDisplay();
-            
-            // Auto-detect location if geolocation is available
-            if (navigator.geolocation && hasStorage) {
-                navigator.geolocation.getCurrentPosition(function(position) {
-                    // You could use a geocoding service here
-                    console.log('Location detected:', position.coords);
-                });
-            }
         }
 
         function setupEventListeners() {
+            console.log('Setting up event listeners');
+            
             // Navigation buttons
-            document.getElementById('next-btn').addEventListener('click', nextStep);
-            document.getElementById('prev-btn').addEventListener('click', prevStep);
-            document.getElementById('submit-btn').addEventListener('click', submitForm);
+            const nextBtn = document.getElementById('next-btn');
+            const prevBtn = document.getElementById('prev-btn');
+            const submitBtn = document.getElementById('submit-btn');
+            
+            if (nextBtn) {
+                nextBtn.addEventListener('click', function(e) {
+                    console.log('Next button clicked');
+                    e.preventDefault();
+                    nextStep();
+                });
+            }
+            
+            if (prevBtn) {
+                prevBtn.addEventListener('click', function(e) {
+                    console.log('Previous button clicked');
+                    e.preventDefault();
+                    prevStep();
+                });
+            }
+            
+            if (submitBtn) {
+                submitBtn.addEventListener('click', function(e) {
+                    console.log('Submit button clicked');
+                    e.preventDefault();
+                    submitForm();
+                });
+            }
 
             // Form validation on input
             const inputs = document.querySelectorAll('input[required], select[required], textarea[required]');
@@ -743,7 +788,10 @@
             });
 
             // AI Preview generation
-            document.getElementById('generate-preview').addEventListener('click', generateAIPreview);
+            const generateBtn = document.getElementById('generate-preview');
+            if (generateBtn) {
+                generateBtn.addEventListener('click', generateAIPreview);
+            }
 
             // Plan selection
             document.querySelectorAll('.pricing-card').forEach(card => {
@@ -751,44 +799,27 @@
             });
 
             // Auto-populate WhatsApp number from phone
-            document.getElementById('phone').addEventListener('blur', function() {
-                const whatsappField = document.getElementById('whatsappNumber');
-                if (!whatsappField.value && this.value) {
-                    whatsappField.value = this.value;
-                }
-            });
-
-            // Testing bypass - hold Shift while clicking Next to bypass validation
-            document.getElementById('next-btn').addEventListener('click', function(e) {
-                if (e.shiftKey) {
-                    console.log('Bypassing validation (Shift+Click)');
-                    if (currentStep < totalSteps) {
-                        currentStep++;
-                        updateStepDisplay();
-                        e.stopImmediatePropagation();
-                    }
-                }
-            });
-
-            // Step indicator click-to-navigate (for testing)
-            for (let i = 1; i <= totalSteps; i++) {
-                document.getElementById(`step-${i}`).addEventListener('click', function() {
-                    if (CONFIG.DEBUG) {
-                        currentStep = i;
-                        updateStepDisplay();
-                        console.log('Debug: Jumped to step', i);
+            const phoneField = document.getElementById('phone');
+            if (phoneField) {
+                phoneField.addEventListener('blur', function() {
+                    const whatsappField = document.getElementById('whatsappNumber');
+                    if (whatsappField && !whatsappField.value && this.value) {
+                        whatsappField.value = this.value;
                     }
                 });
             }
+
+            console.log('Event listeners set up successfully');
         }
 
         function nextStep() {
-            console.log('Next step clicked, current step:', currentStep);
+            console.log('nextStep called, current step:', currentStep);
             
             if (validateCurrentStep()) {
                 if (currentStep < totalSteps) {
                     currentStep++;
                     updateStepDisplay();
+                    console.log('Moved to step:', currentStep);
                     
                     // Auto-generate AI preview when entering step 2
                     if (currentStep === 2) {
@@ -801,26 +832,32 @@
         }
 
         function prevStep() {
+            console.log('prevStep called, current step:', currentStep);
             if (currentStep > 1) {
                 currentStep--;
                 updateStepDisplay();
+                console.log('Moved to step:', currentStep);
             }
         }
 
         function updateStepDisplay() {
+            console.log('Updating step display for step:', currentStep);
+            
             // Update step indicators
             for (let i = 1; i <= totalSteps; i++) {
                 const stepElement = document.getElementById(`step-${i}`);
                 const formStep = document.getElementById(`form-step-${i}`);
                 
-                stepElement.classList.remove('active', 'completed');
-                formStep.classList.remove('active');
-                
-                if (i < currentStep) {
-                    stepElement.classList.add('completed');
-                } else if (i === currentStep) {
-                    stepElement.classList.add('active');
-                    formStep.classList.add('active');
+                if (stepElement && formStep) {
+                    stepElement.classList.remove('active', 'completed');
+                    formStep.classList.remove('active');
+                    
+                    if (i < currentStep) {
+                        stepElement.classList.add('completed');
+                    } else if (i === currentStep) {
+                        stepElement.classList.add('active');
+                        formStep.classList.add('active');
+                    }
                 }
             }
 
@@ -829,25 +866,39 @@
             const nextBtn = document.getElementById('next-btn');
             const submitBtn = document.getElementById('submit-btn');
 
-            prevBtn.style.display = currentStep > 1 ? 'block' : 'none';
+            if (prevBtn) {
+                prevBtn.style.display = currentStep > 1 ? 'block' : 'none';
+            }
             
             if (currentStep === totalSteps) {
-                nextBtn.style.display = 'none';
-                submitBtn.style.display = 'block';
+                if (nextBtn) nextBtn.style.display = 'none';
+                if (submitBtn) submitBtn.style.display = 'block';
             } else {
-                nextBtn.style.display = 'block';
-                submitBtn.style.display = 'none';
+                if (nextBtn) nextBtn.style.display = 'block';
+                if (submitBtn) submitBtn.style.display = 'none';
             }
 
             // Scroll to top of form
-            document.querySelector('.main-card').scrollIntoView({ behavior: 'smooth' });
+            const mainCard = document.querySelector('.main-card');
+            if (mainCard) {
+                mainCard.scrollIntoView({ behavior: 'smooth' });
+            }
         }
 
         function validateCurrentStep() {
+            console.log('Validating step:', currentStep);
+            
             const currentStepElement = document.getElementById(`form-step-${currentStep}`);
+            if (!currentStepElement) {
+                console.log('Step element not found');
+                return false;
+            }
+            
             const requiredFields = currentStepElement.querySelectorAll('input[required], select[required], textarea[required]');
             let isValid = true;
             let firstInvalidField = null;
+
+            console.log('Found', requiredFields.length, 'required fields');
 
             requiredFields.forEach(field => {
                 if (!validateField({ target: field })) {
@@ -858,12 +909,19 @@
                 }
             });
 
+            // For testing purposes, allow bypassing validation with Shift+Click
+            if (event && event.shiftKey) {
+                console.log('Bypassing validation (Shift+Click)');
+                return true;
+            }
+
             // Focus on first invalid field if validation fails
             if (!isValid && firstInvalidField) {
                 firstInvalidField.focus();
                 showAlert('Please fill in all required fields before proceeding.', 'error');
             }
 
+            console.log('Validation result:', isValid);
             return isValid;
         }
 
@@ -909,4 +967,258 @@
         }
 
         function showFieldError(field, message) {
-            field.style.borderColor = 'var(--danger-color)
+            const formGroup = field.closest('.form-group');
+            const errorDiv = formGroup.querySelector('.error-message');
+            
+            if (formGroup && errorDiv) {
+                formGroup.classList.add('error');
+                errorDiv.textContent = message;
+            }
+        }
+
+        function clearFieldError(event) {
+            const field = event.target;
+            const formGroup = field.closest('.form-group');
+            const errorDiv = formGroup.querySelector('.error-message');
+            
+            if (formGroup && errorDiv) {
+                formGroup.classList.remove('error');
+                errorDiv.textContent = '';
+            }
+        }
+
+        function showAlert(message, type = 'info') {
+            const alertDiv = document.getElementById('alert-message');
+            if (alertDiv) {
+                alertDiv.className = `alert ${type}`;
+                alertDiv.textContent = message;
+                alertDiv.style.display = 'block';
+                
+                // Hide after 5 seconds
+                setTimeout(() => {
+                    alertDiv.style.display = 'none';
+                }, 5000);
+            }
+        }
+
+        function generateAIPreview() {
+            console.log('Generating AI preview...');
+            
+            const btn = document.getElementById('generate-preview');
+            const preview = document.getElementById('ai-content-preview');
+            const taglineEl = document.getElementById('preview-tagline');
+            const heroEl = document.getElementById('preview-hero');
+            
+            if (!btn || !preview || !taglineEl || !heroEl) {
+                console.log('Preview elements not found');
+                return;
+            }
+
+            // Get form data for AI generation
+            const businessName = document.getElementById('businessName')?.value || 'Your Business';
+            const category = document.getElementById('category')?.value || 'business';
+            const description = document.getElementById('description')?.value || '';
+            const targetAudience = document.getElementById('targetAudience')?.value || '';
+            const uniqueValue = document.getElementById('uniqueValue')?.value || '';
+
+            // Show loading state
+            btn.disabled = true;
+            btn.querySelector('.loading-spinner').style.display = 'block';
+            btn.querySelector('.btn-text').textContent = 'Generating...';
+
+            // Simulate AI generation (replace with actual API call)
+            setTimeout(() => {
+                // Generate sample content based on inputs
+                const taglines = [
+                    `${businessName} - Your Trusted Partner`,
+                    `Excellence in ${category.replace('-', ' ')} Services`,
+                    `Professional ${category.replace('-', ' ')} Solutions`,
+                    `${businessName} - Quality You Can Trust`
+                ];
+
+                const heroes = [
+                    `Welcome to ${businessName}! We provide professional ${category.replace('-', ' ')} services with a focus on quality and customer satisfaction.`,
+                    `At ${businessName}, we understand your needs and deliver exceptional ${category.replace('-', ' ')} solutions tailored just for you.`,
+                    `Transform your experience with ${businessName}'s expert ${category.replace('-', ' ')} services. Quality, reliability, and customer care in every interaction.`
+                ];
+
+                // Set generated content
+                taglineEl.textContent = taglines[Math.floor(Math.random() * taglines.length)];
+                heroEl.textContent = heroes[Math.floor(Math.random() * heroes.length)];
+
+                // Show preview
+                preview.classList.add('show');
+
+                // Reset button
+                btn.disabled = false;
+                btn.querySelector('.loading-spinner').style.display = 'none';
+                btn.querySelector('.btn-text').textContent = 'Generate AI Preview';
+
+                console.log('AI preview generated successfully');
+            }, 2000);
+        }
+
+        function selectPlan(event) {
+            console.log('Plan selected');
+            
+            // Remove selection from all cards
+            document.querySelectorAll('.pricing-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+
+            // Add selection to clicked card
+            event.currentTarget.classList.add('selected');
+        }
+
+        function submitForm() {
+            console.log('Form submission started');
+            
+            if (isSubmitting) {
+                console.log('Already submitting, ignoring');
+                return;
+            }
+
+            // Validate final step
+            if (!validateCurrentStep()) {
+                console.log('Final step validation failed');
+                return;
+            }
+
+            isSubmitting = true;
+            const submitBtn = document.getElementById('submit-btn');
+            
+            // Show loading state
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.querySelector('.loading-spinner').style.display = 'block';
+                submitBtn.querySelector('.btn-text').textContent = 'Creating Your Account...';
+            }
+
+            // Clear any existing auth data (in case of re-signup)
+            auth.clearAuthData();
+
+            // Collect all form data
+            const formData = new FormData(document.getElementById('onboarding-form'));
+            const data = {
+                action: 'signup',
+                timestamp: new Date().toISOString()
+            };
+            
+            for (let [key, value] of formData.entries()) {
+                data[key] = value;
+            }
+
+            // Add selected plan
+            const selectedPlan = document.querySelector('.pricing-card.selected');
+            if (selectedPlan) {
+                data.plan = selectedPlan.dataset.plan;
+                data.price = selectedPlan.dataset.price;
+            }
+
+            // Add AI-generated content if available
+            const previewTagline = document.getElementById('preview-tagline');
+            const previewHero = document.getElementById('preview-hero');
+            if (previewTagline && previewTagline.textContent !== 'Your tagline will appear here...') {
+                data.aiTagline = previewTagline.textContent;
+            }
+            if (previewHero && previewHero.textContent !== 'Your hero message will appear here...') {
+                data.aiHeroMessage = previewHero.textContent;
+            }
+
+            console.log('Form data collected:', data);
+
+            // Submit to backend
+            fetch(CONFIG.API_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: new URLSearchParams(data)
+            })
+            .then(response => response.json())
+            .then(result => {
+                console.log('Server response:', result);
+                
+                if (result.success) {
+                    // Store authentication data
+                    if (result.authData) {
+                        auth.storeAuthData(result.authData);
+                    }
+                    
+                    showAlert('Account created successfully! Redirecting...', 'success');
+                    
+                    // Redirect to thank you page or dashboard
+                    setTimeout(() => {
+                        const redirectUrl = result.businessId 
+                            ? auth.getThankYouUrl(result.businessId)
+                            : 'thank-you.html';
+                        
+                        console.log('Redirecting to:', redirectUrl);
+                        window.location.href = redirectUrl;
+                    }, 2000);
+                    
+                } else {
+                    // Handle errors
+                    const errorMessage = result.message || 'Registration failed. Please try again.';
+                    showAlert(errorMessage, 'error');
+                    console.error('Registration error:', result);
+                }
+            })
+            .catch(error => {
+                console.error('Network error:', error);
+                showAlert('Network error. Please check your connection and try again.', 'error');
+            })
+            .finally(() => {
+                // Reset form state
+                isSubmitting = false;
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.querySelector('.loading-spinner').style.display = 'none';
+                    submitBtn.querySelector('.btn-text').textContent = 'Start My Free Trial';
+                }
+            });
+        }
+
+        // Debug functions for testing
+        window.debugForm = {
+            goToStep: function(step) {
+                if (step >= 1 && step <= totalSteps) {
+                    currentStep = step;
+                    updateStepDisplay();
+                    console.log('Debug: Jumped to step', step);
+                }
+            },
+            fillTestData: function() {
+                document.getElementById('businessName').value = 'Test Business';
+                document.getElementById('ownerName').value = 'John Doe';
+                document.getElementById('email').value = 'john@test.com';
+                document.getElementById('phone').value = '+91 9876543210';
+                document.getElementById('category').value = 'technology';
+                document.getElementById('location').value = 'Mumbai, Maharashtra';
+                document.getElementById('description').value = 'A test business for demonstration purposes.';
+                console.log('Debug: Test data filled');
+            },
+            validateStep: function() {
+                return validateCurrentStep();
+            }
+        };
+
+        // Add click-to-navigate on step indicators for testing
+        document.addEventListener('DOMContentLoaded', function() {
+            if (CONFIG.DEBUG) {
+                for (let i = 1; i <= totalSteps; i++) {
+                    const stepEl = document.getElementById(`step-${i}`);
+                    if (stepEl) {
+                        stepEl.style.cursor = 'pointer';
+                        stepEl.addEventListener('click', function() {
+                            window.debugForm.goToStep(i);
+                        });
+                    }
+                }
+                console.log('Debug mode: Step indicators are clickable');
+                console.log('Debug functions available: window.debugForm');
+            }
+        });
+    </script>
+</body>
+</html>
