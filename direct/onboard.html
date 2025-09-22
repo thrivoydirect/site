@@ -701,7 +701,7 @@
         // Configuration
         const CONFIG = {
             // Replace with your Apps Script web app URL
-            API_URL: 'https://script.google.com/macros/s/AKfycbxVI8GIafUhHTOHv2pDTiT42820sEFyJlgSEeGYTdmGG9PpDOiqbFQA_ivZf_PzAzO0/exec',
+            API_URL: 'https://script.google.com/macros/s/AKfycbzn28Orw0cvr9FX1JZUBWM--wQEmjA2EBEbH_I7rZuVWDONLUEU36w18yX2wxAaJhBy/exec',
             DEBUG: true
         };
 
@@ -759,9 +759,34 @@
                     whatsappField.value = this.value;
                 }
             });
+
+            // Testing bypass - hold Shift while clicking Next to bypass validation
+            document.getElementById('next-btn').addEventListener('click', function(e) {
+                if (e.shiftKey) {
+                    console.log('Bypassing validation (Shift+Click)');
+                    if (currentStep < totalSteps) {
+                        currentStep++;
+                        updateStepDisplay();
+                        e.stopImmediatePropagation();
+                    }
+                }
+            });
+
+            // Step indicator click-to-navigate (for testing)
+            for (let i = 1; i <= totalSteps; i++) {
+                document.getElementById(`step-${i}`).addEventListener('click', function() {
+                    if (CONFIG.DEBUG) {
+                        currentStep = i;
+                        updateStepDisplay();
+                        console.log('Debug: Jumped to step', i);
+                    }
+                });
+            }
         }
 
         function nextStep() {
+            console.log('Next step clicked, current step:', currentStep);
+            
             if (validateCurrentStep()) {
                 if (currentStep < totalSteps) {
                     currentStep++;
@@ -772,6 +797,8 @@
                         setTimeout(generateAIPreview, 500);
                     }
                 }
+            } else {
+                console.log('Step validation failed');
             }
         }
 
@@ -822,12 +849,22 @@
             const currentStepElement = document.getElementById(`form-step-${currentStep}`);
             const requiredFields = currentStepElement.querySelectorAll('input[required], select[required], textarea[required]');
             let isValid = true;
+            let firstInvalidField = null;
 
             requiredFields.forEach(field => {
                 if (!validateField({ target: field })) {
                     isValid = false;
+                    if (!firstInvalidField) {
+                        firstInvalidField = field;
+                    }
                 }
             });
+
+            // Focus on first invalid field if validation fails
+            if (!isValid && firstInvalidField) {
+                firstInvalidField.focus();
+                showAlert('Please fill in all required fields before proceeding.', 'error');
+            }
 
             return isValid;
         }
