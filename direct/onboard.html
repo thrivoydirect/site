@@ -636,18 +636,19 @@
         // SECURITY IMPROVEMENTS
         // =============================================================================
         
-        // Prevent access in incognito/private mode (optional security measure)
+        // Check for localStorage availability
+        let hasStorage = false;
         try {
-            if (!window.localStorage) {
-                alert('This application requires local storage. Please use normal browsing mode.');
-                window.location.href = 'index.html';
-            }
+            hasStorage = typeof window.localStorage !== 'undefined' && window.localStorage !== null;
         } catch (e) {
-            alert('This application requires local storage. Please enable it and try again.');
-            window.location.href = 'index.html';
+            hasStorage = false;
         }
 
-        // =============================================================================
+        if (!hasStorage) {
+            console.warn('LocalStorage not available - some features may be limited');
+        }
+
+                // =============================================================================
         // AUTHENTICATION MANAGER (for post-signup setup)
         // =============================================================================
 
@@ -693,7 +694,7 @@
 
         // Initialize authentication manager
         const auth = new ThrivoyAuth();
-
+        
         // =============================================================================
         // ONBOARDING APPLICATION
         // =============================================================================
@@ -719,11 +720,8 @@
         function initializeForm() {
             updateStepDisplay();
             
-            // Clear any existing auth data (fresh signup)
-            auth.clearAuthData();
-            
             // Auto-detect location if geolocation is available
-            if (navigator.geolocation) {
+            if (navigator.geolocation && hasStorage) {
                 navigator.geolocation.getCurrentPosition(function(position) {
                     // You could use a geocoding service here
                     console.log('Location detected:', position.coords);
