@@ -558,7 +558,7 @@
                 this.token = localStorage.getItem('thrivoy_token');
                 this.businessId = localStorage.getItem('thrivoy_business_id');
                 this.tokenExpires = localStorage.getItem('thrivoy_token_expires');
-                this.API_URL = 'https://script.google.com/macros/s/AKfycbxVI8GIafUhHTOHv2pDTiT42820sEFyJlgSEeGYTdmGG9PpDOiqbFQA_ivZf_PzAzO0/exec';
+                this.API_URL = CONFIG.API_URL;
             }
 
             // Check if user is authenticated
