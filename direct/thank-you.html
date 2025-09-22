@@ -55,6 +55,26 @@
             background: linear-gradient(135deg, var(--accent-color), #20c997);
             color: white;
             padding: 40px 30px;
+            position: relative;
+        }
+
+        .logout-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.3);
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            color: white;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255,255,255,0.3);
+            border-color: rgba(255,255,255,0.5);
         }
 
         .success-icon {
@@ -377,6 +397,7 @@
         <div class="success-card">
             <!-- Success Header -->
             <div class="success-header">
+                <button onclick="handleLogout()" class="logout-btn">Logout</button>
                 <div class="success-icon">🎉</div>
                 <h1>Congratulations!</h1>
                 <p>Your professional website is now live and ready for customers</p>
@@ -499,169 +520,192 @@
         </div>
     </div>
 
-    // Authentication Manager
-class ThrivoyAuth {
-    constructor() {
-        this.token = localStorage.getItem('thrivoy_token');
-        this.businessId = localStorage.getItem('thrivoy_business_id');
-        this.tokenExpires = localStorage.getItem('thrivoy_token_expires');
-        this.API_URL = 'https://script.google.com/macros/s/AKfycbxVI8GIafUhHTOHv2pDTiT42820sEFyJlgSEeGYTdmGG9PpDOiqbFQA_ivZf_PzAzO0/exec';
-    }
-
-    // Check if user is authenticated
-    isAuthenticated() {
-        if (!this.token || !this.businessId || !this.tokenExpires) {
-            return false;
-        }
-        
-        // Check if token is expired
-        const now = new Date();
-        const expires = new Date(this.tokenExpires);
-        
-        if (now >= expires) {
-            this.logout();
-            return false;
-        }
-        
-        return true;
-    }
-
-    // Get current business ID (authenticated)
-    getBusinessId() {
-        return this.isAuthenticated() ? this.businessId : null;
-    }
-
-    // Add authentication to API requests
-    addAuthToRequest(data) {
-        if (this.isAuthenticated()) {
-            data.token = this.token;
-            data.businessId = this.businessId; // Override any provided businessId
-        }
-        return data;
-    }
-
-    // Verify session with server
-    async verifySession() {
-        if (!this.token) return false;
-        
-        try {
-            const response = await this.makeAPIRequest('checkSession', { token: this.token });
-            
-            if (response.success && response.valid) {
-                // Update stored data in case it changed
-                this.businessId = response.businessId;
-                localStorage.setItem('thrivoy_business_id', response.businessId);
-                return true;
-            } else {
-                this.logout();
-                return false;
-            }
-        } catch (error) {
-            console.error('Session verification failed:', error);
-            this.logout();
-            return false;
-        }
-    }
-
-    // Logout and redirect
-    logout() {
-        localStorage.removeItem('thrivoy_token');
-        localStorage.removeItem('thrivoy_business_id');
-        localStorage.removeItem('thrivoy_token_expires');
-        
-        // Redirect to login page
-        window.location.href = 'login.html' + (this.businessId ? '?businessId=' + this.businessId : '');
-    }
-
-    // Enhanced API request with authentication
-    async makeAPIRequest(action, data = {}) {
-        const authenticatedData = this.addAuthToRequest({ ...data, action });
-        
-        return new Promise((resolve, reject) => {
-            const callbackName = 'authCallback' + Date.now() + Math.random().toString(36).substr(2, 5);
-            const timeout = setTimeout(() => {
-                cleanup();
-                reject(new Error('Request timeout'));
-            }, 30000);
-            
-            window[callbackName] = (response) => {
-                cleanup();
-                
-                // Handle authentication errors
-                if (response.requiresAuth || (response.success === false && response.error && response.error.includes('Authentication'))) {
-                    this.logout();
-                    reject(new Error('Authentication required'));
-                    return;
-                }
-                
-                resolve(response);
-            };
-            
-            const script = document.createElement('script');
-            const params = new URLSearchParams({ ...authenticatedData, callback: callbackName });
-            script.src = `${this.API_URL}?${params.toString()}`;
-            
-            script.onerror = () => {
-                cleanup();
-                reject(new Error('Network error'));
-            };
-            
-            function cleanup() {
-                clearTimeout(timeout);
-                if (window[callbackName]) {
-                    delete window[callbackName];
-                }
-                if (script.parentNode) {
-                    script.parentNode.removeChild(script);
-                }
-            }
-            
-            document.head.appendChild(script);
-        });
-    }
-
-    // Check authentication before page load
-    async checkAuthOnLoad() {
-        // First check local storage
-        if (!this.isAuthenticated()) {
-            this.redirectToLogin();
-            return false;
-        }
-        
-        // Then verify with server
-        const isValid = await this.verifySession();
-        if (!isValid) {
-            this.redirectToLogin();
-            return false;
-        }
-        
-        return true;
-    }
-
-    // Redirect to login with current business ID
-    redirectToLogin() {
-        const urlBusinessId = new URLSearchParams(window.location.search).get('businessId');
-        const businessId = urlBusinessId || this.businessId;
-        window.location.href = 'login.html' + (businessId ? '?businessId=' + businessId : '');
-    }
-}
-
-    // Initialize authentication (optional for thank-you page)
-const auth = new ThrivoyAuth();
-
-// Modified initialization for thank-you page
-document.addEventListener('DOMContentLoaded', function() {
-    businessId = getBusinessIdFromUrl();
-    
-    if (!businessId && !auth.isAuthenticated()) {
-        showError('No business ID provided. Please access this page from your welcome email.');
-        return;
-    }
-    
-    loadBusinessData();
-});
-    
     <script>
+        // =============================================================================
+        // SECURITY IMPROVEMENTS
+        // =============================================================================
+        
+        // Prevent access in incognito/private mode (optional security measure)
+        try {
+            if (!window.localStorage) {
+                alert('This application requires local storage. Please use normal browsing mode.');
+                window.location.href = 'index.html';
+            }
+        } catch (e) {
+            alert('This application requires local storage. Please enable it and try again.');
+            window.location.href = 'index.html';
+        }
+
+        // Clear sensitive data on page unload
+        window.addEventListener('beforeunload', function() {
+            // Only clear if user explicitly logged out (don't clear on page refresh)
+            const shouldClear = sessionStorage.getItem('explicit_logout');
+            if (shouldClear) {
+                localStorage.removeItem('thrivoy_token');
+                localStorage.removeItem('thrivoy_business_id');
+                localStorage.removeItem('thrivoy_token_expires');
+                sessionStorage.removeItem('explicit_logout');
+            }
+        });
+
+        // =============================================================================
+        // AUTHENTICATION MANAGER
+        // =============================================================================
+
+        // Authentication Manager
+        class ThrivoyAuth {
+            constructor() {
+                this.token = localStorage.getItem('thrivoy_token');
+                this.businessId = localStorage.getItem('thrivoy_business_id');
+                this.tokenExpires = localStorage.getItem('thrivoy_token_expires');
+                this.API_URL = 'https://script.google.com/macros/s/AKfycbxVI8GIafUhHTOHv2pDTiT42820sEFyJlgSEeGYTdmGG9PpDOiqbFQA_ivZf_PzAzO0/exec';
+            }
+
+            // Check if user is authenticated
+            isAuthenticated() {
+                if (!this.token || !this.businessId || !this.tokenExpires) {
+                    return false;
+                }
+                
+                // Check if token is expired
+                const now = new Date();
+                const expires = new Date(this.tokenExpires);
+                
+                if (now >= expires) {
+                    this.logout();
+                    return false;
+                }
+                
+                return true;
+            }
+
+            // Get current business ID (authenticated)
+            getBusinessId() {
+                return this.isAuthenticated() ? this.businessId : null;
+            }
+
+            // Add authentication to API requests
+            addAuthToRequest(data) {
+                if (this.isAuthenticated()) {
+                    data.token = this.token;
+                    data.businessId = this.businessId; // Override any provided businessId
+                }
+                return data;
+            }
+
+            // Verify session with server
+            async verifySession() {
+                if (!this.token) return false;
+                
+                try {
+                    const response = await this.makeAPIRequest('checkSession', { token: this.token });
+                    
+                    if (response.success && response.valid) {
+                        // Update stored data in case it changed
+                        this.businessId = response.businessId;
+                        localStorage.setItem('thrivoy_business_id', response.businessId);
+                        return true;
+                    } else {
+                        this.logout();
+                        return false;
+                    }
+                } catch (error) {
+                    console.error('Session verification failed:', error);
+                    this.logout();
+                    return false;
+                }
+            }
+
+            // Logout and redirect
+            logout() {
+                localStorage.removeItem('thrivoy_token');
+                localStorage.removeItem('thrivoy_business_id');
+                localStorage.removeItem('thrivoy_token_expires');
+                
+                // Redirect to login page
+                window.location.href = 'login.html' + (this.businessId ? '?businessId=' + this.businessId : '');
+            }
+
+            // Enhanced API request with authentication
+            async makeAPIRequest(action, data = {}) {
+                const authenticatedData = this.addAuthToRequest({ ...data, action });
+                
+                return new Promise((resolve, reject) => {
+                    const callbackName = 'authCallback' + Date.now() + Math.random().toString(36).substr(2, 5);
+                    const timeout = setTimeout(() => {
+                        cleanup();
+                        reject(new Error('Request timeout'));
+                    }, 30000);
+                    
+                    window[callbackName] = (response) => {
+                        cleanup();
+                        
+                        // Handle authentication errors
+                        if (response.requiresAuth || (response.success === false && response.error && response.error.includes('Authentication'))) {
+                            this.logout();
+                            reject(new Error('Authentication required'));
+                            return;
+                        }
+                        
+                        resolve(response);
+                    };
+                    
+                    const script = document.createElement('script');
+                    const params = new URLSearchParams({ ...authenticatedData, callback: callbackName });
+                    script.src = `${this.API_URL}?${params.toString()}`;
+                    
+                    script.onerror = () => {
+                        cleanup();
+                        reject(new Error('Network error'));
+                    };
+                    
+                    function cleanup() {
+                        clearTimeout(timeout);
+                        if (window[callbackName]) {
+                            delete window[callbackName];
+                        }
+                        if (script.parentNode) {
+                            script.parentNode.removeChild(script);
+                        }
+                    }
+                    
+                    document.head.appendChild(script);
+                });
+            }
+
+            // Check authentication before page load
+            async checkAuthOnLoad() {
+                // First check local storage
+                if (!this.isAuthenticated()) {
+                    this.redirectToLogin();
+                    return false;
+                }
+                
+                // Then verify with server
+                const isValid = await this.verifySession();
+                if (!isValid) {
+                    this.redirectToLogin();
+                    return false;
+                }
+                
+                return true;
+            }
+
+            // Redirect to login with current business ID
+            redirectToLogin() {
+                const urlBusinessId = new URLSearchParams(window.location.search).get('businessId');
+                const businessId = urlBusinessId || this.businessId;
+                window.location.href = 'login.html' + (businessId ? '?businessId=' + businessId : '');
+            }
+        }
+
+        // Initialize authentication (optional for thank-you page)
+        const auth = new ThrivoyAuth();
+
+        // =============================================================================
+        // THANK YOU PAGE APPLICATION
+        // =============================================================================
+
         // Configuration
         const CONFIG = {
             // Replace with your Apps Script web app URL
@@ -673,10 +717,11 @@ document.addEventListener('DOMContentLoaded', function() {
         let businessId = null;
         let businessData = null;
 
-        // Initialize page
+        // Modified initialization for thank-you page
         document.addEventListener('DOMContentLoaded', function() {
             businessId = getBusinessIdFromUrl();
-            if (!businessId) {
+            
+            if (!businessId && !auth.isAuthenticated()) {
                 showError('No business ID provided. Please access this page from your welcome email.');
                 return;
             }
@@ -689,44 +734,44 @@ document.addEventListener('DOMContentLoaded', function() {
             return urlParams.get('businessId') || urlParams.get('id') || urlParams.get('biz');
         }
 
-async function loadBusinessData() {
-    try {
-        // For thank-you page, we can be more flexible with authentication
-        // since users might access it immediately after signup
-        let businessIdToUse = businessId;
-        
-        // If user is authenticated, use authenticated business ID
-        if (auth.isAuthenticated()) {
-            businessIdToUse = auth.getBusinessId();
+        async function loadBusinessData() {
+            try {
+                // For thank-you page, we can be more flexible with authentication
+                // since users might access it immediately after signup
+                let businessIdToUse = businessId;
+                
+                // If user is authenticated, use authenticated business ID
+                if (auth.isAuthenticated()) {
+                    businessIdToUse = auth.getBusinessId();
+                }
+                
+                if (!businessIdToUse) {
+                    throw new Error('No business ID available');
+                }
+                
+                // Try authenticated request first
+                let response;
+                if (auth.isAuthenticated()) {
+                    response = await auth.makeAPIRequest('getThankYouData', {});
+                } else {
+                    // Fallback to non-authenticated request for immediate post-signup access
+                    response = await makeAPIRequest('getThankYouData', { businessId: businessIdToUse });
+                }
+                
+                if (response.success) {
+                    businessData = response.business;
+                    populatePageContent();
+                    setupWebsitePreview(response.websiteUrl);
+                    calculateTrialInfo();
+                } else {
+                    throw new Error(response.error || 'Failed to load business data');
+                }
+                
+            } catch (error) {
+                console.error('Failed to load business data:', error);
+                showError(`Unable to load your information: ${error.message}`);
+            }
         }
-        
-        if (!businessIdToUse) {
-            throw new Error('No business ID available');
-        }
-        
-        // Try authenticated request first
-        let response;
-        if (auth.isAuthenticated()) {
-            response = await auth.makeAPIRequest('getThankYouData', {});
-        } else {
-            // Fallback to non-authenticated request for immediate post-signup access
-            response = await makeAPIRequest('getThankYouData', { businessId: businessIdToUse });
-        }
-        
-        if (response.success) {
-            businessData = response.business;
-            populatePageContent();
-            setupWebsitePreview(response.websiteUrl);
-            calculateTrialInfo();
-        } else {
-            throw new Error(response.error || 'Failed to load business data');
-        }
-        
-    } catch (error) {
-        console.error('Failed to load business data:', error);
-        showError(`Unable to load your information: ${error.message}`);
-    }
-}
 
         function populatePageContent() {
             if (!businessData) return;
@@ -818,7 +863,7 @@ async function loadBusinessData() {
         function showError(message) {
             document.getElementById('loading-section').innerHTML = `
                 <div style="text-align: center; padding: 40px;">
-                    <div style="font-size: 3rem; color: var(--secondary-color); margin-bottom: 20px;"⚠️</div>
+                    <div style="font-size: 3rem; color: var(--secondary-color); margin-bottom: 20px;">⚠️</div>
                     <h3>Unable to Load Information</h3>
                     <p>${message}</p>
                     <div style="margin-top: 30px;">
@@ -873,6 +918,13 @@ async function loadBusinessData() {
             window.open(dashboardUrl, '_blank');
         }
 
+        function handleLogout() {
+            if (confirm('Are you sure you want to logout?')) {
+                sessionStorage.setItem('explicit_logout', 'true');
+                auth.logout();
+            }
+        }
+
         // CORS-friendly API request handler
         async function makeAPIRequest(action, data) {
             const requestData = { ...data, action };
@@ -920,13 +972,6 @@ async function loadBusinessData() {
                 document.head.appendChild(script);
             });
         }
-
-        function handleLogout() {
-    if (confirm('Are you sure you want to logout?')) {
-        sessionStorage.setItem('explicit_logout', 'true');
-        auth.logout();
-    }
-}
         
         // Auto-refresh website preview if it fails to load initially
         setTimeout(() => {
