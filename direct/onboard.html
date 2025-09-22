@@ -632,10 +632,76 @@
     </div>
 
     <script>
+        // =============================================================================
+        // SECURITY IMPROVEMENTS
+        // =============================================================================
+        
+        // Prevent access in incognito/private mode (optional security measure)
+        try {
+            if (!window.localStorage) {
+                alert('This application requires local storage. Please use normal browsing mode.');
+                window.location.href = 'index.html';
+            }
+        } catch (e) {
+            alert('This application requires local storage. Please enable it and try again.');
+            window.location.href = 'index.html';
+        }
+
+        // =============================================================================
+        // AUTHENTICATION MANAGER (for post-signup setup)
+        // =============================================================================
+
+        // Authentication Manager
+        class ThrivoyAuth {
+            constructor() {
+                this.API_URL = 'https://script.google.com/macros/s/AKfycbxVI8GIafUhHTOHv2pDTiT42820sEFyJlgSEeGYTdmGG9PpDOiqbFQA_ivZf_PzAzO0/exec';
+            }
+
+            // Store authentication data after successful signup
+            storeAuthData(authData) {
+                if (authData.token && authData.businessId && authData.expires) {
+                    localStorage.setItem('thrivoy_token', authData.token);
+                    localStorage.setItem('thrivoy_business_id', authData.businessId);
+                    localStorage.setItem('thrivoy_token_expires', authData.expires);
+                    return true;
+                }
+                return false;
+            }
+
+            // Clear any existing auth data (in case of re-signup)
+            clearAuthData() {
+                localStorage.removeItem('thrivoy_token');
+                localStorage.removeItem('thrivoy_business_id');
+                localStorage.removeItem('thrivoy_token_expires');
+            }
+
+            // Generate login URL with business ID
+            getLoginUrl(businessId) {
+                return `login.html${businessId ? '?businessId=' + businessId : ''}`;
+            }
+
+            // Generate dashboard URL with business ID
+            getDashboardUrl(businessId) {
+                return `dashboard.html${businessId ? '?businessId=' + businessId : ''}`;
+            }
+
+            // Generate thank-you URL with business ID
+            getThankYouUrl(businessId) {
+                return `thank-you.html${businessId ? '?businessId=' + businessId : ''}`;
+            }
+        }
+
+        // Initialize authentication manager
+        const auth = new ThrivoyAuth();
+
+        // =============================================================================
+        // ONBOARDING APPLICATION
+        // =============================================================================
+
         // Configuration
         const CONFIG = {
             // Replace with your Apps Script web app URL
-            API_URL: 'https://script.google.com/macros/s/AKfycbxVI8GIafUhHTOHv2pDTiT42820sEFyJlgSEeGYTdmGG9PpDOiqbFQA_ivZf_PzAzO0/exec',
+            API_URL: 'https://script.google.com/macros/s/AKfycbzn28Orw0cvr9FX1JZUBWM--wQEmjA2EBEbH_I7rZuVWDONLUEU36w18yX2wxAaJhBy/exec',
             DEBUG: true
         };
 
@@ -652,6 +718,9 @@
 
         function initializeForm() {
             updateStepDisplay();
+            
+            // Clear any existing auth data (fresh signup)
+            auth.clearAuthData();
             
             // Auto-detect location if geolocation is available
             if (navigator.geolocation) {
@@ -945,8 +1014,24 @@
         }
 
         function handleSuccessfulSubmission(response) {
+            // Store authentication data if provided
+            if (response.auth) {
+                const authStored = auth.storeAuthData(response.auth);
+                if (authStored) {
+                    logEvent('auth_data_stored', response.businessId);
+                } else {
+                    console.warn('Failed to store authentication data');
+                }
+            }
+
             // Hide form and show success message
             document.getElementById('onboarding-form').style.display = 'none';
+            
+            // Generate URLs with authentication support
+            const websiteUrl = response.websiteUrl || '#';
+            const dashboardUrl = response.dashboardUrl || auth.getDashboardUrl(response.businessId);
+            const thankYouUrl = response.thankYouUrl || auth.getThankYouUrl(response.businessId);
+            const loginUrl = auth.getLoginUrl(response.businessId);
             
             const successHtml = `
                 <div style="text-align: center; padding: 40px;">
@@ -954,20 +1039,33 @@
                     <h2 style="color: var(--accent-color); margin-bottom: 20px;">Welcome to Thrivoy!</h2>
                     <p style="font-size: 18px; margin-bottom: 30px;">Your professional website is being created and will be live shortly.</p>
                     
+                    ${response.businessId ? `
+                        <div style="background: #e8f4fd; padding: 15px; border-radius: 8px; margin: 20px 0; font-size: 14px;">
+                            <strong>Your Business ID:</strong> <code>${response.businessId}</code><br>
+                            <small>Keep this for your records and future logins</small>
+                        </div>
+                    ` : ''}
+                    
                     <div style="background: var(--section-bg); padding: 20px; border-radius: 8px; margin: 20px 0;">
                         <h3>What happens next?</h3>
                         <ul style="text-align: left; max-width: 400px; margin: 0 auto;">
                             <li>Your website will be live in 2-3 minutes</li>
-                            <li>You'll receive a welcome email with all details</li>
+                            <li>You'll receive a welcome email with login details</li>
                             <li>Your 7-day free trial starts now</li>
-                            <li>We'll send you the payment link via email</li>
+                            <li>Payment link will be sent via email before trial expires</li>
+                            <li>AI content generation will begin automatically</li>
                         </ul>
                     </div>
                     
                     <div style="display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; margin-top: 30px;">
-                        ${response.websiteUrl ? `<a href="${response.websiteUrl}" target="_blank" class="btn btn-primary">View Your Website</a>` : ''}
-                        ${response.dashboardUrl ? `<a href="${response.dashboardUrl}" target="_blank" class="btn btn-secondary">Access Dashboard</a>` : ''}
-                        ${response.thankYouUrl ? `<a href="${response.thankYouUrl}" target="_blank" class="btn btn-secondary">Thank You Page</a>` : ''}
+                        ${websiteUrl !== '#' ? `<a href="${websiteUrl}" target="_blank" class="btn btn-primary">View Your Website</a>` : ''}
+                        ${response.auth ? `<a href="${dashboardUrl}" class="btn btn-secondary">Access Dashboard</a>` : `<a href="${loginUrl}" class="btn btn-secondary">Login to Dashboard</a>`}
+                        ${thankYouUrl ? `<a href="${thankYouUrl}" class="btn btn-secondary">Thank You Page</a>` : ''}
+                    </div>
+                    
+                    <div style="margin-top: 20px; padding: 15px; background: rgba(17, 102, 238, 0.1); border-radius: 8px; font-size: 14px;">
+                        <strong>📧 Check Your Email:</strong> We're sending you all the important links and login information.
+                        ${!response.auth ? '<br><strong>Login Required:</strong> Use the login link in your email to access your dashboard securely.' : ''}
                     </div>
                     
                     <div style="margin-top: 30px; padding: 20px; background: #e8f4fd; border-radius: 8px;">
@@ -979,10 +1077,21 @@
             
             document.querySelector('.form-container').innerHTML = successHtml;
             
-            // Redirect to website after delay if URL provided
-            if (response.websiteUrl) {
+            // Auto-redirect logic with authentication awareness
+            if (websiteUrl !== '#') {
                 setTimeout(() => {
-                    window.open(response.websiteUrl, '_blank');
+                    if (response.auth) {
+                        // User is authenticated, go to dashboard
+                        window.open(dashboardUrl, '_blank');
+                    } else {
+                        // Show website first, then redirect to login
+                        window.open(websiteUrl, '_blank');
+                        setTimeout(() => {
+                            if (thankYouUrl) {
+                                window.location.href = thankYouUrl;
+                            }
+                        }, 2000);
+                    }
                 }, 3000);
             }
         }
@@ -1144,6 +1253,30 @@
                     }
                 });
             }
+        });
+
+        // Performance tracking
+        window.addEventListener('load', function() {
+            logEvent('page_loaded', '', { 
+                loadTime: performance.now(),
+                timing: performance.timing 
+            });
+        });
+
+        // Browser and device info logging
+        logEvent('page_view', '', {
+            viewport: {
+                width: window.innerWidth,
+                height: window.innerHeight
+            },
+            screen: {
+                width: screen.width,
+                height: screen.height
+            },
+            connection: navigator.connection ? {
+                effectiveType: navigator.connection.effectiveType,
+                downlink: navigator.connection.downlink
+            } : 'unknown'
         });
     </script>
 </body>
