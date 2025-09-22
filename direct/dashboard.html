@@ -107,6 +107,22 @@
             font-weight: 600;
         }
 
+        .logout-btn {
+            background: none;
+            border: 1px solid #ccc;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            color: #666;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+
+        .logout-btn:hover {
+            border-color: var(--danger-color);
+            color: var(--danger-color);
+        }
+
         .main-container {
             max-width: 1200px;
             margin: 0 auto;
@@ -285,7 +301,7 @@
         }
 
         .preview-header {
-            background: var(--section-bg);
+            background: var(--background);
             padding: 10px 15px;
             font-size: 12px;
             color: var(--text-light);
@@ -515,6 +531,7 @@
                     <div id="user-name">Loading...</div>
                     <div style="font-size: 0.8rem; color: var(--text-light);" id="user-email">Loading...</div>
                 </div>
+                <button onclick="handleLogout()" class="logout-btn">Logout</button>
             </div>
         </div>
     </header>
@@ -661,166 +678,192 @@
         </div>
     </main>
 
-// Authentication Manager
-class ThrivoyAuth {
-    constructor() {
-        this.token = localStorage.getItem('thrivoy_token');
-        this.businessId = localStorage.getItem('thrivoy_business_id');
-        this.tokenExpires = localStorage.getItem('thrivoy_token_expires');
-        this.API_URL = 'https://script.google.com/macros/s/AKfycbxVI8GIafUhHTOHv2pDTiT42820sEFyJlgSEeGYTdmGG9PpDOiqbFQA_ivZf_PzAzO0/exec';
-    }
-
-    // Check if user is authenticated
-    isAuthenticated() {
-        if (!this.token || !this.businessId || !this.tokenExpires) {
-            return false;
-        }
-        
-        // Check if token is expired
-        const now = new Date();
-        const expires = new Date(this.tokenExpires);
-        
-        if (now >= expires) {
-            this.logout();
-            return false;
-        }
-        
-        return true;
-    }
-
-    // Get current business ID (authenticated)
-    getBusinessId() {
-        return this.isAuthenticated() ? this.businessId : null;
-    }
-
-    // Add authentication to API requests
-    addAuthToRequest(data) {
-        if (this.isAuthenticated()) {
-            data.token = this.token;
-            data.businessId = this.businessId; // Override any provided businessId
-        }
-        return data;
-    }
-
-    // Verify session with server
-    async verifySession() {
-        if (!this.token) return false;
-        
-        try {
-            const response = await this.makeAPIRequest('checkSession', { token: this.token });
-            
-            if (response.success && response.valid) {
-                // Update stored data in case it changed
-                this.businessId = response.businessId;
-                localStorage.setItem('thrivoy_business_id', response.businessId);
-                return true;
-            } else {
-                this.logout();
-                return false;
-            }
-        } catch (error) {
-            console.error('Session verification failed:', error);
-            this.logout();
-            return false;
-        }
-    }
-
-    // Logout and redirect
-    logout() {
-        localStorage.removeItem('thrivoy_token');
-        localStorage.removeItem('thrivoy_business_id');
-        localStorage.removeItem('thrivoy_token_expires');
-        
-        // Redirect to login page
-        window.location.href = 'login.html' + (this.businessId ? '?businessId=' + this.businessId : '');
-    }
-
-    // Enhanced API request with authentication
-    async makeAPIRequest(action, data = {}) {
-        const authenticatedData = this.addAuthToRequest({ ...data, action });
-        
-        return new Promise((resolve, reject) => {
-            const callbackName = 'authCallback' + Date.now() + Math.random().toString(36).substr(2, 5);
-            const timeout = setTimeout(() => {
-                cleanup();
-                reject(new Error('Request timeout'));
-            }, 30000);
-            
-            window[callbackName] = (response) => {
-                cleanup();
-                
-                // Handle authentication errors
-                if (response.requiresAuth || (response.success === false && response.error && response.error.includes('Authentication'))) {
-                    this.logout();
-                    reject(new Error('Authentication required'));
-                    return;
-                }
-                
-                resolve(response);
-            };
-            
-            const script = document.createElement('script');
-            const params = new URLSearchParams({ ...authenticatedData, callback: callbackName });
-            script.src = `${this.API_URL}?${params.toString()}`;
-            
-            script.onerror = () => {
-                cleanup();
-                reject(new Error('Network error'));
-            };
-            
-            function cleanup() {
-                clearTimeout(timeout);
-                if (window[callbackName]) {
-                    delete window[callbackName];
-                }
-                if (script.parentNode) {
-                    script.parentNode.removeChild(script);
-                }
-            }
-            
-            document.head.appendChild(script);
-        });
-    }
-
-    // Check authentication before page load
-    async checkAuthOnLoad() {
-        // First check local storage
-        if (!this.isAuthenticated()) {
-            this.redirectToLogin();
-            return false;
-        }
-        
-        // Then verify with server
-        const isValid = await this.verifySession();
-        if (!isValid) {
-            this.redirectToLogin();
-            return false;
-        }
-        
-        return true;
-    }
-
-    // Redirect to login with current business ID
-    redirectToLogin() {
-        const urlBusinessId = new URLSearchParams(window.location.search).get('businessId');
-        const businessId = urlBusinessId || this.businessId;
-        window.location.href = 'login.html' + (businessId ? '?businessId=' + businessId : '');
-    }
-}
-
-    // Initialize authentication
-const auth = new ThrivoyAuth();
-
-// Check authentication before page load
-document.addEventListener('DOMContentLoaded', async function() {
-    const isAuthenticated = await auth.checkAuthOnLoad();
-    if (isAuthenticated) {
-        initializeDashboard();
-    }
-});
-
-    
     <script>
+        // =============================================================================
+        // SECURITY IMPROVEMENTS
+        // =============================================================================
+        
+        // Prevent access in incognito/private mode (optional security measure)
+        try {
+            if (!window.localStorage) {
+                alert('This application requires local storage. Please use normal browsing mode.');
+                window.location.href = 'index.html';
+            }
+        } catch (e) {
+            alert('This application requires local storage. Please enable it and try again.');
+            window.location.href = 'index.html';
+        }
+
+        // Clear sensitive data on page unload
+        window.addEventListener('beforeunload', function() {
+            // Only clear if user explicitly logged out (don't clear on page refresh)
+            const shouldClear = sessionStorage.getItem('explicit_logout');
+            if (shouldClear) {
+                localStorage.removeItem('thrivoy_token');
+                localStorage.removeItem('thrivoy_business_id');
+                localStorage.removeItem('thrivoy_token_expires');
+                sessionStorage.removeItem('explicit_logout');
+            }
+        });
+
+        // =============================================================================
+        // AUTHENTICATION MANAGER
+        // =============================================================================
+
+        // Authentication Manager
+        class ThrivoyAuth {
+            constructor() {
+                this.token = localStorage.getItem('thrivoy_token');
+                this.businessId = localStorage.getItem('thrivoy_business_id');
+                this.tokenExpires = localStorage.getItem('thrivoy_token_expires');
+                this.API_URL = 'https://script.google.com/macros/s/AKfycbxVI8GIafUhHTOHv2pDTiT42820sEFyJlgSEeGYTdmGG9PpDOiqbFQA_ivZf_PzAzO0/exec';
+            }
+
+            // Check if user is authenticated
+            isAuthenticated() {
+                if (!this.token || !this.businessId || !this.tokenExpires) {
+                    return false;
+                }
+                
+                // Check if token is expired
+                const now = new Date();
+                const expires = new Date(this.tokenExpires);
+                
+                if (now >= expires) {
+                    this.logout();
+                    return false;
+                }
+                
+                return true;
+            }
+
+            // Get current business ID (authenticated)
+            getBusinessId() {
+                return this.isAuthenticated() ? this.businessId : null;
+            }
+
+            // Add authentication to API requests
+            addAuthToRequest(data) {
+                if (this.isAuthenticated()) {
+                    data.token = this.token;
+                    data.businessId = this.businessId; // Override any provided businessId
+                }
+                return data;
+            }
+
+            // Verify session with server
+            async verifySession() {
+                if (!this.token) return false;
+                
+                try {
+                    const response = await this.makeAPIRequest('checkSession', { token: this.token });
+                    
+                    if (response.success && response.valid) {
+                        // Update stored data in case it changed
+                        this.businessId = response.businessId;
+                        localStorage.setItem('thrivoy_business_id', response.businessId);
+                        return true;
+                    } else {
+                        this.logout();
+                        return false;
+                    }
+                } catch (error) {
+                    console.error('Session verification failed:', error);
+                    this.logout();
+                    return false;
+                }
+            }
+
+            // Logout and redirect
+            logout() {
+                localStorage.removeItem('thrivoy_token');
+                localStorage.removeItem('thrivoy_business_id');
+                localStorage.removeItem('thrivoy_token_expires');
+                
+                // Redirect to login page
+                window.location.href = 'login.html' + (this.businessId ? '?businessId=' + this.businessId : '');
+            }
+
+            // Enhanced API request with authentication
+            async makeAPIRequest(action, data = {}) {
+                const authenticatedData = this.addAuthToRequest({ ...data, action });
+                
+                return new Promise((resolve, reject) => {
+                    const callbackName = 'authCallback' + Date.now() + Math.random().toString(36).substr(2, 5);
+                    const timeout = setTimeout(() => {
+                        cleanup();
+                        reject(new Error('Request timeout'));
+                    }, 30000);
+                    
+                    window[callbackName] = (response) => {
+                        cleanup();
+                        
+                        // Handle authentication errors
+                        if (response.requiresAuth || (response.success === false && response.error && response.error.includes('Authentication'))) {
+                            this.logout();
+                            reject(new Error('Authentication required'));
+                            return;
+                        }
+                        
+                        resolve(response);
+                    };
+                    
+                    const script = document.createElement('script');
+                    const params = new URLSearchParams({ ...authenticatedData, callback: callbackName });
+                    script.src = `${this.API_URL}?${params.toString()}`;
+                    
+                    script.onerror = () => {
+                        cleanup();
+                        reject(new Error('Network error'));
+                    };
+                    
+                    function cleanup() {
+                        clearTimeout(timeout);
+                        if (window[callbackName]) {
+                            delete window[callbackName];
+                        }
+                        if (script.parentNode) {
+                            script.parentNode.removeChild(script);
+                        }
+                    }
+                    
+                    document.head.appendChild(script);
+                });
+            }
+
+            // Check authentication before page load
+            async checkAuthOnLoad() {
+                // First check local storage
+                if (!this.isAuthenticated()) {
+                    this.redirectToLogin();
+                    return false;
+                }
+                
+                // Then verify with server
+                const isValid = await this.verifySession();
+                if (!isValid) {
+                    this.redirectToLogin();
+                    return false;
+                }
+                
+                return true;
+            }
+
+            // Redirect to login with current business ID
+            redirectToLogin() {
+                const urlBusinessId = new URLSearchParams(window.location.search).get('businessId');
+                const businessId = urlBusinessId || this.businessId;
+                window.location.href = 'login.html' + (businessId ? '?businessId=' + businessId : '');
+            }
+        }
+
+        // Initialize authentication
+        const auth = new ThrivoyAuth();
+
+        // =============================================================================
+        // DASHBOARD APPLICATION
+        // =============================================================================
+
         // Configuration
         const CONFIG = {
             // Replace with your Apps Script web app URL
@@ -833,21 +876,13 @@ document.addEventListener('DOMContentLoaded', async function() {
         let dashboardData = null;
         let businessId = null;
 
-        // Initialize dashboard
-        document.addEventListener('DOMContentLoaded', function() {
-            businessId = getBusinessIdFromUrl();
-            if (!businessId) {
-                showAlert('No business ID provided. Please access dashboard from your welcome email.', 'danger');
-                return;
+        // Check authentication before page load
+        document.addEventListener('DOMContentLoaded', async function() {
+            const isAuthenticated = await auth.checkAuthOnLoad();
+            if (isAuthenticated) {
+                initializeDashboard();
             }
-            
-            initializeDashboard();
         });
-
-        function getBusinessIdFromUrl() {
-            const urlParams = new URLSearchParams(window.location.search);
-            return urlParams.get('businessId');
-        }
 
         async function initializeDashboard() {
             try {
@@ -890,6 +925,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                 showLoadingScreen(false);
             }
         }
+
         function populateDashboard() {
             if (!businessData) return;
             
@@ -1063,7 +1099,6 @@ document.addEventListener('DOMContentLoaded', async function() {
                         }
                         
                         // Update payment section content
-                        const existingContent = paymentSection.innerHTML;
                         paymentSection.innerHTML = `
                             <h3>💳 Payment Ready!</h3>
                             <p><strong>Amount: ₹${invoice.amount || '499'}</strong></p>
@@ -1107,7 +1142,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                                 <ul style="text-align: left; margin: 10px 0; padding-left: 20px; display: inline-block;">
                                     <li><strong>Mobile:</strong> Tap "Pay Now via UPI" or scan QR code</li>
                                     <li><strong>Desktop:</strong> Scan QR code with any UPI app</li>
-                                    <li><strong>Manual:</strong> Use UPI ID: ${getProp_('UPI_ID') || 'Contact support'}</li>
+                                    <li><strong>Manual:</strong> Use UPI ID: Contact support</li>
                                 </ul>
                                 <p style="margin-top: 15px; color: #666;">
                                     <strong>Keep this reference:</strong> ${invoice.invoiceId}<br>
@@ -1117,35 +1152,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                         `;
                     }
                     
-                    // Show success message with action buttons
-                    showAlert(`
-                        <div style="text-align: center;">
-                            <strong>✅ Payment Link Generated!</strong><br>
-                            <span style="font-size: 0.9rem;">
-                                ${invoice.upiDeepLink ? 'Click "Pay Now via UPI" below or scan the QR code' : 'Check your email for payment instructions'}
-                            </span>
-                        </div>
-                    `, 'success');
-                    
-                    // Log successful payment link generation
-                    if (window.ThrivoyAPI) {
-                        window.ThrivoyAPI.request('log', {
-                            event: 'payment_link_generated',
-                            businessId: businessId,
-                            invoiceId: invoice.invoiceId,
-                            amount: invoice.amount
-                        }).catch(() => {
-                            // Silent fail for logging
-                        });
-                    }
-                    
-                    // Auto-scroll to payment section
-                    setTimeout(() => {
-                        paymentSection.scrollIntoView({ 
-                            behavior: 'smooth', 
-                            block: 'center' 
-                        });
-                    }, 500);
+                    showAlert('Payment link generated successfully!', 'success');
                     
                 } else {
                     throw new Error(response.error || 'Failed to create payment link');
@@ -1154,25 +1161,11 @@ document.addEventListener('DOMContentLoaded', async function() {
             } catch (error) {
                 console.error('Payment link generation failed:', error);
                 
-                // Handle specific error types
                 if (error.message.includes('Authentication')) {
                     showAlert('Session expired. Please login again.', 'danger');
                     auth.logout();
-                } else if (error.message.includes('Rate limit')) {
-                    showAlert('Too many requests. Please wait a moment and try again.', 'warning');
                 } else {
                     showAlert(`Failed to create payment link: ${error.message}. Please try again or contact support.`, 'danger');
-                }
-                
-                // Log error
-                if (window.ThrivoyAPI) {
-                    window.ThrivoyAPI.request('log', {
-                        event: 'payment_link_error',
-                        businessId: businessId,
-                        error: error.message
-                    }).catch(() => {
-                        // Silent fail for logging
-                    });
                 }
                 
             } finally {
@@ -1190,7 +1183,7 @@ document.addEventListener('DOMContentLoaded', async function() {
             const details = `Thrivoy Payment Details:
         Invoice ID: ${invoiceId}
         Amount: ₹${amount}
-        UPI ID: ${getProp_('UPI_ID') || 'Contact support for UPI ID'}
+        UPI ID: Contact support for UPI ID
         
         Pay using any UPI app and keep this invoice ID for reference.`;
         
@@ -1240,15 +1233,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                 }
             });
         }
-        
-        // Helper function to get property value (for UPI ID display)
-        function getProp_(key) {
-            // This is a placeholder - in production, sensitive data shouldn't be exposed to frontend
-            const publicProps = {
-                'UPI_ID': 'Contact support for UPI ID'
-            };
-            return publicProps[key] || 'Not available';
-        }
+
         function shareWebsite() {
             if (!dashboardData.websiteUrl) {
                 showAlert('Website URL not available', 'warning');
@@ -1330,6 +1315,13 @@ document.addEventListener('DOMContentLoaded', async function() {
             document.getElementById(`${tabName}-content`).classList.add('active');
         }
 
+        function handleLogout() {
+            if (confirm('Are you sure you want to logout?')) {
+                sessionStorage.setItem('explicit_logout', 'true');
+                auth.logout();
+            }
+        }
+
         // Utility functions
         function showLoadingScreen(show) {
             const loadingScreen = document.getElementById('loading-screen');
@@ -1366,62 +1358,6 @@ document.addEventListener('DOMContentLoaded', async function() {
             } catch (error) {
                 return 'Invalid date';
             }
-        }
-
-        // CORS-friendly API request handler (same as onboard.html)
-        async function makeAPIRequest(action, data) {
-            const requestData = { ...data, action };
-            
-            try {
-                // Use JSONP for better compatibility with Apps Script
-                return await makeJSONPRequest(action, requestData);
-            } catch (error) {
-                console.error('API Request failed:', error);
-                throw error;
-            }
-        }
-
-        function makeJSONPRequest(action, data) {
-            return new Promise((resolve, reject) => {
-                const callbackName = 'dashboardCallback' + Date.now() + Math.random().toString(36).substr(2, 9);
-                const timeout = setTimeout(() => {
-                    cleanup();
-                    reject(new Error('Request timeout'));
-                }, 30000);
-                
-                window[callbackName] = function(response) {
-                    cleanup();
-                    resolve(response);
-                };
-                
-                const script = document.createElement('script');
-                const params = new URLSearchParams({ ...data, callback: callbackName });
-                script.src = `${CONFIG.API_URL}?${params.toString()}`;
-                
-                script.onerror = function() {
-                    cleanup();
-                    reject(new Error('Network error'));
-                };
-
-function handleLogout() {
-    if (confirm('Are you sure you want to logout?')) {
-        sessionStorage.setItem('explicit_logout', 'true');
-        auth.logout();
-    }
-}
-                
-                function cleanup() {
-                    clearTimeout(timeout);
-                    if (window[callbackName]) {
-                        delete window[callbackName];
-                    }
-                    if (script.parentNode) {
-                        script.parentNode.removeChild(script);
-                    }
-                }
-                
-                document.head.appendChild(script);
-            });
         }
 
         // Auto-refresh dashboard every 5 minutes
