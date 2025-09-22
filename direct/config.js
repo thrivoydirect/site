@@ -9,7 +9,7 @@
 // Get this from: Apps Script > Deploy > New Deployment > Web App > Copy URL
 const THRIVOY_CONFIG = {
     // Replace 'YOUR_DEPLOYMENT_ID' with your actual Apps Script deployment ID
-    API_URL: 'https://script.google.com/macros/s/AKfycbxVI8GIafUhHTOHv2pDTiT42820sEFyJlgSEeGYTdmGG9PpDOiqbFQA_ivZf_PzAzO0/exec',
+    API_URL: 'https://script.google.com/macros/s/AKfycbzn28Orw0cvr9FX1JZUBWM--wQEmjA2EBEbH_I7rZuVWDONLUEU36w18yX2wxAaJhBy/exec',
     
     // GitHub Pages configuration (automatically detected)
     GITHUB_PAGES_URL: window.location.origin,
