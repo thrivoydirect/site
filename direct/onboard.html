@@ -705,19 +705,19 @@
                 }
             }
 
-            // Generate login URL with business ID
+            // FIXED: Generate login URL with correct path
             getLoginUrl(businessId) {
-                return `login.html${businessId ? '?businessId=' + businessId : ''}`;
+                return `direct/login.html${businessId ? '?businessId=' + businessId : ''}`;
             }
 
-            // Generate dashboard URL with business ID
+            // FIXED: Generate dashboard URL with correct path
             getDashboardUrl(businessId) {
-                return `dashboard.html${businessId ? '?businessId=' + businessId : ''}`;
+                return `direct/dashboard.html${businessId ? '?businessId=' + businessId : ''}`;
             }
 
-            // Generate thank-you URL with business ID
+            // FIXED: Generate thank-you URL with correct path
             getThankYouUrl(businessId) {
-                return `thank-you.html${businessId ? '?businessId=' + businessId : ''}`;
+                return `direct/thank-you.html${businessId ? '?businessId=' + businessId : ''}`;
             }
         }
 
@@ -726,7 +726,7 @@
 
         // Configuration
         const CONFIG = {
-            // Replace with your Apps Script web app URL
+            // This should point to your deployed Apps Script web app
             API_URL: 'https://script.google.com/macros/s/AKfycbyj0NfECPGv-kLU2meLc8cX_aUv9-Jj2uMcnIHOSSIn4eXXQrdYXc85b_puvshDct8G/exec',
             DEBUG: true
         };
@@ -1151,7 +1151,7 @@
                     setTimeout(() => {
                         const redirectUrl = result.businessId 
                             ? auth.getThankYouUrl(result.businessId)
-                            : 'thank-you.html';
+                            : 'direct/thank-you.html';
                         
                         console.log('Redirecting to:', redirectUrl);
                         window.location.href = redirectUrl;
